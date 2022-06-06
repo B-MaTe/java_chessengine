@@ -5,7 +5,8 @@ import java.awt.*;
 import java.util.HashMap;
 
 public class Board extends JPanel {
-
+    HashMap<String, Byte[]> figurePositions;
+    String currFigure;
     Settings settings;
     Figures figures;
     Color darkColor, lightColor;
@@ -46,14 +47,29 @@ public class Board extends JPanel {
                 g.fillRect(cellSize*col+settings.getOffsetX(), cellSize*row+settings.getOffsetY(), cellSize, cellSize);
             }
         }
-        HashMap<String, Byte[]> figurePositions;
+
         figurePositions = settings.getFigurePositions();
         for (String key : figures.getFigures().keySet()) {
+            if (getCurrFigure() != null) {
+                if (key.equals(getCurrFigure())) {
+                    continue;
+                }
+            }
             g.drawImage(figures.getFigures().get(key), figurePositions.get(key)[1]*cellSize+settings.getOffsetX() + (settings.getCellSize() / 10), figurePositions.get(key)[0]*cellSize+settings.getOffsetY() + (settings.getCellSize() / 10), settings.getCellSize() - (settings.getCellSize() / 5), settings.getCellSize() - (settings.getCellSize() / 5), null);
-
+        }
+        if (getCurrFigure() != null) {
+            g.drawImage(figures.getFigures().get(getCurrFigure()), figurePositions.get(getCurrFigure())[1]*cellSize+settings.getOffsetX() + (settings.getCellSize() / 10), figurePositions.get(getCurrFigure())[0]*cellSize+settings.getOffsetY() + (settings.getCellSize() / 10), settings.getCellSize() - (settings.getCellSize() / 5), settings.getCellSize() - (settings.getCellSize() / 5), null);
         }
         revalidate();
         repaint();
 
+    }
+
+    public String getCurrFigure() {
+        return currFigure;
+    }
+
+    public void setCurrFigure(String currFigure) {
+        this.currFigure = currFigure;
     }
 }

@@ -76,7 +76,7 @@ public class Settings {
     }
 
     public void moveFigure(String key, Byte[] value) {
-        figurePositions.put(key, value);
+        getFigurePositions().put(key, value);
     }
 
     public int getOffsetX() {
