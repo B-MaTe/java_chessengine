@@ -10,14 +10,20 @@ public class Window extends JFrame implements ActionListener {
     Settings settings;
     Figures figures;
     Board board;
+    Actions actions;
 
     Window() throws IOException {
         JFrame.setDefaultLookAndFeelDecorated(true);
+
         this.figures = new Figures();
         this.settings = new Settings(figures);
         this.board = new Board(figures, settings);
         this.frame = new JFrame(settings.getTitle());
+        this.actions = new Actions(board, figures, settings);
         frame.add(board);
+        frame.setContentPane(board);
+        frame.addMouseListener(actions);
+        frame.addMouseMotionListener(actions);
         frame.setSize(settings.getWIDTH(), settings.getHEIGHT());
         frame.setVisible(settings.getVisible());
         frame.setResizable(settings.getResizable());

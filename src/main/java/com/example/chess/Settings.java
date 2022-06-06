@@ -1,8 +1,9 @@
 package com.example.chess;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class Settings {
@@ -17,9 +18,8 @@ public class Settings {
     private Color darkColor = Color.GRAY;
     private Color lightColor = Color.WHITE;
     private final HashMap<String, Byte[]> figurePositions;
-    Settings(Figures figures) {
+    Settings(@NotNull Figures figures) {
         HashMap<String, BufferedImage> figureMap = figures.getFigures();
-        //System.out.println(figureMap.keySet());
         this.figurePositions = new HashMap<>();
         figurePositions.put("bro", new Byte[]{0,0});
         figurePositions.put("bkn", new Byte[]{0,1});
@@ -75,8 +75,8 @@ public class Settings {
         return figurePositions;
     }
 
-    public Byte[] PutFigurePositions(String key, Byte[] value) {
-        return figurePositions.put(key, value);
+    public void moveFigure(String key, Byte[] value) {
+        figurePositions.put(key, value);
     }
 
     public int getOffsetX() {
