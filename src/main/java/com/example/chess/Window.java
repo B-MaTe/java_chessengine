@@ -11,15 +11,16 @@ public class Window extends JFrame implements ActionListener {
     Figures figures;
     Board board;
     Actions actions;
+    GameLogic gameLogic;
 
     Window() throws IOException {
         JFrame.setDefaultLookAndFeelDecorated(true);
-
         this.figures = new Figures();
         this.settings = new Settings(figures);
         this.board = new Board(figures, settings);
         this.frame = new JFrame(settings.getTitle());
-        this.actions = new Actions(board, figures, settings);
+        this.gameLogic = new GameLogic(settings, figures);
+        this.actions = new Actions(board, figures, settings, gameLogic);
         frame.add(board);
         frame.setContentPane(board);
         frame.addMouseListener(actions);

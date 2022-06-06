@@ -11,13 +11,15 @@ public class Actions extends MouseAdapter {
     Figures figures;
     Board board;
     Settings settings;
+    GameLogic gameLogic;
     private byte row, col, oldRow, oldCol;
     String currPiece;
-    Actions(Board board, Figures figures, Settings settings) {
+    Actions(Board board, Figures figures, Settings settings, GameLogic gameLogic) {
         super();
         this.board = board;
         this.figures = figures;
         this.settings = settings;
+        this.gameLogic = gameLogic;
 
     }
 
@@ -32,7 +34,6 @@ public class Actions extends MouseAdapter {
                     setOldCol(getCol());
                     setOldRow(getRow());
                     currPiece = entry.getKey();
-                    //System.out.println(entry.getKey());
                 }
             }
                 } else if (e.getModifiersEx() == InputEvent.BUTTON2_DOWN_MASK) {
@@ -43,9 +44,20 @@ public class Actions extends MouseAdapter {
 
     }
     public void mouseReleased(MouseEvent e) {
+        gameLogic.setLastMovedFigure(currPiece);
+        gameLogic.setLastMovedFigurePos(new Byte[]{getCol(), getRow()});
+        if (gameLogic.checkMove()) {
+            settings.setMove(settings.getMove() + 1);
+        } else {
+            takeBackMove();
+        }
         currPiece = null;
         board.setCurrFigure(null);
 
+    }
+
+    private void takeBackMove() {
+        settings.moveFigure(currPiece, new Byte[]{getOldCol(), getOldRow()});
     }
 
     public void mouseDragged(MouseEvent e) {
@@ -70,10 +82,8 @@ public class Actions extends MouseAdapter {
     }
 
     public void moveFigure(String figure) {
-        //System.out.println(getCol() + "           "  + getRow());
         board.setCurrFigure(currPiece);
         settings.moveFigure(figure, new Byte[]{getCol(), getRow()});
-        //System.out.println(Arrays.toString(settings.getFigurePositions().get(figure)));
     }
 
     public byte getOldRow() {

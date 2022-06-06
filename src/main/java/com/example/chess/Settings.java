@@ -18,6 +18,7 @@ public class Settings {
     private Color darkColor = Color.GRAY;
     private Color lightColor = Color.WHITE;
     private final HashMap<String, Byte[]> figurePositions;
+    private int move = 0;
     Settings(@NotNull Figures figures) {
         HashMap<String, BufferedImage> figureMap = figures.getFigures();
         this.figurePositions = new HashMap<>();
@@ -55,6 +56,14 @@ public class Settings {
         figurePositions.put("wpa7", new Byte[]{6,7});
     }
 
+    public int getMove() {
+        return move;
+    }
+
+    public void setMove(int move) {
+        this.move = move;
+    }
+
     public Color getDarkColor() {
         return darkColor;
     }
@@ -73,6 +82,10 @@ public class Settings {
 
     public HashMap<String, Byte[]> getFigurePositions() {
         return figurePositions;
+    }
+
+    public boolean removeFigure(String figure) {
+        return getFigurePositions().remove(figure) != null;
     }
 
     public void moveFigure(String key, Byte[] value) {

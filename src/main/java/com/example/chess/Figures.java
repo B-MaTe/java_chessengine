@@ -52,6 +52,7 @@ public class Figures extends JPanel {
         this.figures = loadFigures();
     }
 
-
-
+    public boolean removeFigure(String figure) {
+        return getFigures().remove(figure) != null;
+    }
 }
