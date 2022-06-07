@@ -1,6 +1,5 @@
 package com.example.chess;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,7 +8,9 @@ import java.util.Map;
 public class GameLogic {
     Figures figureClass;
     Settings settings;
+    String typeOfFigure;
     String lastMovedFigure;
+    boolean isValidMove;
     Byte[] lastMovedFigurePos;
     HashMap<String, Byte[]> figures;
     GameLogic(Settings settings, Figures figureClass) {
@@ -42,21 +43,83 @@ public class GameLogic {
         return figureClass.removeFigure(figure) && settings.removeFigure(figure);
     }
 
-    public String checkCollision(String lastMovedFigure, Byte[] lastMovedFigurePos) {
-        for (Map.Entry<String, Byte[]> entry : getFigures().entrySet()) {
-            if (entry.getKey().equals(lastMovedFigure)) {
-                continue;
-            }
-            if (Arrays.equals(entry.getValue(), lastMovedFigurePos)) {
-                return entry.getKey();
+    private String checkCollision(String figure, Byte[] pos) {
+        if (figure != null && pos != null) {
+            for (Map.Entry<String, Byte[]> entry : getFigures().entrySet()) {
+                if (entry.getKey().equals(figure)) {
+                    continue;
+                }
+                if (Arrays.equals(entry.getValue(), pos)) {
+                    return entry.getKey();
+                }
             }
         }
         return null;
-
     }
 
-    public boolean checkMove() {
-        return handleCollision(checkCollision(getLastMovedFigure(), getLastMovedFigurePos()));
+    // This method is called by Actions
+    public boolean checkMove(String figure, Byte[] pos) throws Exception {
+        if (figure != null && pos != null) {
+            return validMove(figure) && handleCollision(checkCollision(figure, pos));
+        }
+        return false;
+    }
+
+    private boolean validMove(String figure) throws Exception {
+        return checkFigureType(figure);
+    }
+
+    private boolean checkFigureType(String figure) throws Exception {
+        if (figure == null) {
+            return false;
+        }
+        typeOfFigure = figure.substring(1, 3);
+        switch (typeOfFigure) {
+            case "ki" ->
+                // king
+                    isValidMove = checkKingMove(figure);
+            case "qu" ->
+                // queen
+                    isValidMove = checkQueenMove(figure);
+            case "bi" ->
+                // bishop
+                    isValidMove = checkBishopMove(figure);
+            case "kn" ->
+                // knight
+                    isValidMove = checkKnightMove(figure);
+            case "ro" ->
+                // rook
+                    isValidMove = checkRookMove(figure);
+            case "pa" ->
+                // pawn
+                    isValidMove = checkPawnMove(figure);
+            default -> throw (new Exception("Piece not found"));
+        }
+        return isValidMove;
+    }
+
+    private boolean checkPawnMove(String figure) {
+        return true;
+    }
+
+    private boolean checkRookMove(String figure) {
+        return true;
+    }
+
+    private boolean checkKnightMove(String figure) {
+        return true;
+    }
+
+    private boolean checkBishopMove(String figure) {
+        return true;
+    }
+
+    private boolean checkQueenMove(String figure) {
+        return true;
+    }
+
+    private boolean checkKingMove(String figure) {
+        return true;
     }
 
     private boolean handleCollision(String collidedPiece) {
