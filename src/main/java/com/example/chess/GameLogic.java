@@ -40,6 +40,7 @@ public class GameLogic {
     }
 
     public boolean removeFigure(String figure) {
+        // return true if successfully removed figure
         return figureClass.removeFigure(figure) && settings.removeFigure(figure);
     }
 
@@ -55,6 +56,20 @@ public class GameLogic {
             }
         }
         return null;
+    }
+
+    private boolean handleCollision(String collidedPiece) {
+        if (collidedPiece == null || getLastMovedFigure() == null) {
+            // no collision -> no checking
+            return true;
+        }
+        if (collidedPiece.substring(0, 1).equals(getLastMovedFigure().substring(0,1))) {
+            // same color
+            return false;
+        }
+
+        // remove the collidedPiece
+        return removeFigure(collidedPiece);
     }
 
     // This method is called by Actions
@@ -122,17 +137,4 @@ public class GameLogic {
         return true;
     }
 
-    private boolean handleCollision(String collidedPiece) {
-        if (collidedPiece == null || getLastMovedFigure() == null) {
-            // no collision -> no checking
-            return true;
-        }
-        if (collidedPiece.substring(0, 1).equals(getLastMovedFigure().substring(0,1))) {
-            // same color
-            return false;
-        }
-
-        // remove the collidedPiece
-        return removeFigure(collidedPiece);
-    }
 }

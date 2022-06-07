@@ -37,10 +37,10 @@ public class Actions extends MouseAdapter {
     }
 
     public void mouseReleased(MouseEvent e) {
-        handleGameLogicFigure();
         try {
             // check if user made a legal move
-            if (getOldRow() != getRow() || getOldCol() != getCol()) {
+            if (getOldRow() != getRow() || getOldCol() != getCol() && getCurrPiece() != null) {
+                handleGameLogicFigure();
                 // check if move is valid
                 if (gameLogic.checkMove(getCurrPiece(), new Byte[]{getCol(), getRow()})) {
                     // moves++
@@ -55,14 +55,13 @@ public class Actions extends MouseAdapter {
         }
         // reassign the values to null
         setValuesToNull();
-
-
     }
 
     public void mouseDragged(MouseEvent e) {
         if (e.getModifiersEx() == InputEvent.BUTTON1_DOWN_MASK) {
             if (getCurrPiece() != null) {
                     setNewPos(e);
+                // check if on the board
                 if (getRow() < 0 || getRow() > 7 || getCol() < 0 || getCol() > 7) {
                     setOldPos();
                 } else {

@@ -89,7 +89,10 @@ public class Settings {
     }
 
     public void moveFigure(String key, Byte[] value) {
-        getFigurePositions().put(key, value);
+        if (key != null || value != null) {
+            getFigurePositions().put(key, value);
+        }
+
     }
 
     public int getOffsetX() {
