@@ -11,8 +11,9 @@ public class Actions extends MouseAdapter {
     Board board;
     Settings settings;
     GameLogic gameLogic;
-    private byte row, col, oldRow, oldCol;
+    private int row, col, oldRow, oldCol;
     String currPiece;
+    boolean onBoard;
     Actions(Board board, Figures figures, Settings settings, GameLogic gameLogic) {
         super();
         this.board = board;
@@ -23,49 +24,69 @@ public class Actions extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (e.getModifiersEx() == InputEvent.BUTTON1_DOWN_MASK) {
-            // set the mouse pos to (x, y) coordinates
+        int unmask = InputEvent.BUTTON1_DOWN_MASK;
+        if ((e.getModifiersEx() & unmask) == unmask) {
             setNewPos(e);
-            for (Map.Entry<String, Byte[]> entry : settings.getFigurePositions().entrySet()) {
+            if (getRow() < 0 || getRow() > 7 || getCol() < 0 || getCol() > 7) {
+                setOnBoard(false);
+                return;
+            }
+            setOnBoard(true);
+            // set the mouse pos to (x, y) coordinates
+            for (Map.Entry<String, int[]> entry : settings.getFigurePositions().entrySet()) {
                 // check if the mouse coordinates (x, y) match any figure on the board
-                if (Arrays.equals(entry.getValue(), new Byte[]{getCol(), getRow()})) {
+                if (Arrays.equals(entry.getValue(), new int[]{getCol(), getRow()})) {
                     updateOldPosToNew();
                     setCurrPiece(entry.getKey());
                 }
             }
+            if (getCurrPiece() == null) {
+                setOnBoard(false);
+                setValuesToNull();
+            }
+        } else {
+            setOnBoard(false);
         }
     }
 
+    @Override
     public void mouseReleased(MouseEvent e) {
-        try {
-            // check if user made a legal move
-            if (getOldRow() != getRow() || getOldCol() != getCol() && getCurrPiece() != null) {
-                handleGameLogicFigure();
-                // check if move is valid
-                if (gameLogic.checkMove(getCurrPiece(), new Byte[]{getCol(), getRow()})) {
-                    // moves++
-                    settings.setMove(settings.getMove() + 1);
-                // take the move back
-                } else {
-                    takeBackMove();
+        if (isOnBoard()) {
+            try {
+                // check if user made a legal move
+                if (getOldRow() != getRow() || getOldCol() != getCol() && getCurrPiece() != null) {
+                    handleGameLogicFigure();
+                    // check if move is valid
+                    if (gameLogic.checkMove(getCurrPiece(), new int[]{getCol(), getRow()}, new int[]{getOldCol(), getOldRow()})) {
+                        // moves++
+                        settings.setMove(settings.getMove() + 1);
+                        // figure moved
+                        settings.setFigureMoved(getCurrPiece());
+                        // take the move back
+                    } else {
+                        takeBackMove();
+                    }
                 }
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
             }
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
         }
         // reassign the values to null
         setValuesToNull();
     }
 
+    @Override
     public void mouseDragged(MouseEvent e) {
-        if (e.getModifiersEx() == InputEvent.BUTTON1_DOWN_MASK) {
-            if (getCurrPiece() != null) {
+        if (isOnBoard()) {
+            if (e.getModifiersEx() == InputEvent.BUTTON1_DOWN_MASK) {
+                if (getCurrPiece() != null) {
                     setNewPos(e);
-                // check if on the board
-                if (getRow() < 0 || getRow() > 7 || getCol() < 0 || getCol() > 7) {
-                    setOldPos();
-                } else {
-                    moveFigure(getCurrPiece());
+                    // check if on the board
+                    if (getRow() < 0 || getRow() > 7 || getCol() < 0 || getCol() > 7) {
+                        setOldPos();
+                    } else {
+                        moveFigure(getCurrPiece());
+                    }
                 }
             }
         }
@@ -80,12 +101,14 @@ public class Actions extends MouseAdapter {
 
     private void handleGameLogicFigure() {
         gameLogic.setLastMovedFigure(getCurrPiece());
-        gameLogic.setLastMovedFigurePos(new Byte[]{getCol(), getRow()});
+        gameLogic.setLastMovedFigurePos(new int[]{getCol(), getRow()});
     }
 
 
     private void takeBackMove() {
-        settings.moveFigure(getCurrPiece(), new Byte[]{getOldCol(), getOldRow()});
+        setOldPos();
+        settings.moveFigure(getCurrPiece(), new int[]{getCol(), getRow()});
+        setOnBoard(false);
     }
 
     private void updateOldPosToNew() {
@@ -99,44 +122,44 @@ public class Actions extends MouseAdapter {
     }
 
     private void setNewPos(MouseEvent e) {
-        setRow((byte) ((e.getX() - settings.getOffsetX()) / settings.getCellSize()));
-        setCol((byte) ((e.getY() - settings.getOffsetY() - settings.getOffsetY() / 3) / settings.getCellSize()));
+        setRow((e.getX() - settings.getOffsetX()) / settings.getCellSize());
+        setCol((e.getY() - settings.getOffsetY()) / settings.getCellSize());
     }
 
     private void moveFigure(String figure) {
         board.setCurrFigure(getCurrPiece());
-        settings.moveFigure(figure, new Byte[]{getCol(), getRow()});
+        settings.moveFigure(figure, new int[]{getCol(), getRow()});
     }
 
-    public byte getOldRow() {
+    public int getOldRow() {
         return oldRow;
     }
 
-    public void setOldRow(byte oldRow) {
+    public void setOldRow(int oldRow) {
         this.oldRow = oldRow;
     }
 
-    public byte getOldCol() {
+    public int getOldCol() {
         return oldCol;
     }
 
-    public void setOldCol(byte oldCol) {
+    public void setOldCol(int oldCol) {
         this.oldCol = oldCol;
     }
 
-    public Byte getRow() {
+    public int getRow() {
         return row;
     }
 
-    public void setRow(byte row) {
+    public void setRow(int row) {
         this.row = row;
     }
 
-    public Byte getCol() {
+    public int getCol() {
         return col;
     }
 
-    public void setCol(byte col) {
+    public void setCol(int col) {
         this.col = col;
     }
 
@@ -158,5 +181,13 @@ public class Actions extends MouseAdapter {
 
     public void setCurrPiece(String currPiece) {
         this.currPiece = currPiece;
+    }
+
+    public boolean isOnBoard() {
+        return onBoard;
+    }
+
+    public void setOnBoard(boolean onBoard) {
+        this.onBoard = onBoard;
     }
 }

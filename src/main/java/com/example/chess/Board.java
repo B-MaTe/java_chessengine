@@ -5,7 +5,7 @@ import java.awt.*;
 import java.util.HashMap;
 
 public class Board extends JPanel {
-    HashMap<String, Byte[]> figurePositions;
+    HashMap<String, int[]> figurePositions;
     String currFigure;
     Settings settings;
     Figures figures;
