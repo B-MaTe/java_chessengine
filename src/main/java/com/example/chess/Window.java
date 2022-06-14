@@ -15,7 +15,7 @@ public class Window extends JFrame implements ActionListener {
 
     Window() throws IOException {
         this.figures = new Figures();
-        this.settings = new Settings(figures);
+        this.settings = new Settings();
         this.board = new Board(figures, settings);
         this.frame = new JFrame(settings.getTitle());
         this.gameLogic = new GameLogic(settings, figures);
@@ -26,8 +26,8 @@ public class Window extends JFrame implements ActionListener {
         frame.addMouseMotionListener(actions);
         JFrame.setDefaultLookAndFeelDecorated(true);
         frame.setSize(settings.getWIDTH(), settings.getHEIGHT());
-        //frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        //frame.setUndecorated(true);
+        // frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        // frame.setUndecorated(true);
         frame.setVisible(settings.getVisible());
         frame.setResizable(settings.getResizable());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

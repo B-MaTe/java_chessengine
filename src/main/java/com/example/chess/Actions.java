@@ -55,7 +55,6 @@ public class Actions extends MouseAdapter {
             try {
                 // check if user made a legal move
                 if (getOldRow() != getRow() || getOldCol() != getCol() && getCurrPiece() != null) {
-                    handleGameLogicFigure();
                     // check if move is valid
                     if (gameLogic.checkMove(getCurrPiece(), new int[]{getCol(), getRow()}, new int[]{getOldCol(), getOldRow()})) {
                         // moves++
@@ -95,15 +94,7 @@ public class Actions extends MouseAdapter {
     private void setValuesToNull() {
         setCurrPiece(null);
         board.setCurrFigure(null);
-        gameLogic.setLastMovedFigurePos(null);
-        gameLogic.setLastMovedFigure(null);
     }
-
-    private void handleGameLogicFigure() {
-        gameLogic.setLastMovedFigure(getCurrPiece());
-        gameLogic.setLastMovedFigurePos(new int[]{getCol(), getRow()});
-    }
-
 
     private void takeBackMove() {
         setOldPos();
@@ -161,18 +152,6 @@ public class Actions extends MouseAdapter {
 
     public void setCol(int col) {
         this.col = col;
-    }
-
-    public Figures getFigures() {
-        return figures;
-    }
-
-    public Board getBoard() {
-        return board;
-    }
-
-    public Settings getSettings() {
-        return settings;
     }
 
     public String getCurrPiece() {

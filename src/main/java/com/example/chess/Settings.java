@@ -3,9 +3,7 @@ package com.example.chess;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Settings {
     private int WIDTH = 1980;
@@ -20,11 +18,10 @@ public class Settings {
     private Color lightColor = Color.WHITE;
     private final HashMap<String, int[]> figurePositions;
     private int move = 0;
-    private HashMap<String, Boolean> figureMoved;
+    private final HashMap<String, Boolean> figureMoved;
     // 1 -> black is top, -1 -> white is top
     private final HashMap<Character, Integer> topColor;
-    Settings(@NotNull Figures figures) {
-        HashMap<String, BufferedImage> figureMap = figures.getFigures();
+    Settings() {
         this.topColor = new HashMap<>();
         topColor.put('w', -1);
         topColor.put('b', 1);

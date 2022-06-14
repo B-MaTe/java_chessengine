@@ -6,31 +6,10 @@ import java.util.*;
 public class GameLogic {
     Figures figureClass;
     Settings settings;
-    String typeOfFigure;
-    String lastMovedFigure;
-    int[] lastMovedFigurePos;
     GameLogic(Settings settings, Figures figureClass) {
         this.settings = settings;
         this.figureClass = figureClass;
     }
-
-
-    public String getLastMovedFigure() {
-        return lastMovedFigure;
-    }
-
-    public void setLastMovedFigure(String lastMovedFigure) {
-        this.lastMovedFigure = lastMovedFigure;
-    }
-
-    public int[] getLastMovedFigurePos() {
-        return lastMovedFigurePos;
-    }
-
-    public void setLastMovedFigurePos(int[] lastMovedFigurePos) {
-        this.lastMovedFigurePos = lastMovedFigurePos;
-    }
-
     public HashMap<String, int[]> getFigures() {
         return settings.getFigurePositions();
     }
@@ -43,7 +22,7 @@ public class GameLogic {
     // This method is called by Actions
     public boolean checkMove(String figure, int[] newPos, int[] oldPos) throws Exception {
         if (figure != null && newPos != null && oldPos != null) {
-            return validMove(figure, newPos, oldPos)  && handleCollision(checkCollision(figure, newPos));
+            return validMove(figure, newPos, oldPos)  && handleCollision(checkCollision(figure, newPos), figure);
         }
         return false;
     }
@@ -56,7 +35,7 @@ public class GameLogic {
         if (figure == null) {
             return false;
         }
-        typeOfFigure = figure.substring(1, 3);
+        String typeOfFigure = figure.substring(1, 3);
 
         switch (typeOfFigure) {
             case "ki" -> {
@@ -379,12 +358,12 @@ public class GameLogic {
         return null;
     }
 
-    private boolean handleCollision(String collidedPiece) {
-        if (collidedPiece == null || getLastMovedFigure() == null) {
+    private boolean handleCollision(String collidedPiece, String figure) {
+        if (collidedPiece == null || figure == null) {
             // no collision -> no checking
             return true;
         }
-        if (collidedPiece.substring(0, 1).equals(getLastMovedFigure().substring(0,1))) {
+        if (collidedPiece.substring(0, 1).equals(figure.substring(0,1))) {
             // same color
             return false;
         }
@@ -396,7 +375,6 @@ public class GameLogic {
     private boolean between(int variable, int minValueInclusive, int maxValueInclusive) {
         return variable >= minValueInclusive && variable <= maxValueInclusive;
     }
-
 }
 
 
