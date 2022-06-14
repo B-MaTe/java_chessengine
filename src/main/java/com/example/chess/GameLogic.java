@@ -164,13 +164,53 @@ public class GameLogic {
     }
 
     private List<int[]> getPawnMoves(int[] oldPos, String figure) {
-        //System.out.println(Arrays.toString(oldPos));
         List<int[]> moves = new ArrayList<>();
-        char color = figure.charAt(0);
-        int side = settings.getTopColor(color);
-        moves.add(new int[]{side + oldPos[0], oldPos[1]});
+        int side = settings.getTopColor(figure.charAt(0));
+        // collision left
+        if (between(oldPos[1]-1,0, 7 )) {
+            int[] valL = new int[]{side + oldPos[0], oldPos[1]-1};
+            for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                if (Arrays.equals(entry.getValue(), valL) && !entry.getKey().equals(figure)) {
+                    if (entry.getKey().charAt(0) != figure.charAt(0)) {
+                        moves.add(valL);
+                    }
+                }
+            }
+        }
+
+
+
+        // collision right
+        if (between(oldPos[1]+1,0, 7 )) {
+            int[] valR = new int[]{side + oldPos[0], oldPos[1]+1};
+            for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                if (Arrays.equals(entry.getValue(), valR) && !entry.getKey().equals(figure)) {
+                    if (entry.getKey().charAt(0) != figure.charAt(0)) {
+                        moves.add(valR);
+                    }
+                }
+            }
+        }
+
+
+        // move 1
+        int[] val = new int[]{side + oldPos[0], oldPos[1]};
+        for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+            if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
+                return moves;
+            }
+        }
+        moves.add(val);
+
+        // move 2
         if (!settings.getFigureMoved().get(figure)) {
-            moves.add(new int[]{2*side + oldPos[0], oldPos[1]});
+            int[] doubleVal = new int[]{2*side + oldPos[0], oldPos[1]};
+            for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                if (Arrays.equals(entry.getValue(), doubleVal) && !entry.getKey().equals(figure)) {
+                    return moves;
+                }
+            }
+            moves.add(doubleVal);
         }
         return moves;
     }
