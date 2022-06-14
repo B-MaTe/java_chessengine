@@ -28,40 +28,48 @@ public class GameLogic {
     }
 
     private boolean validMove(String figure, int[] newPos, int[] oldPos) throws Exception {
-        return checkFigureType(figure, newPos, oldPos);
+        return checkFigureMoves(figure, newPos, oldPos);
     }
 
-    private boolean checkFigureType(String figure, int[] newPos, int[] oldPos) throws Exception {
+
+    private boolean checkFigureMoves(String figure, int[] newPos, int[] oldPos) throws Exception {
+        return getFigureMoves(figure, oldPos).stream().anyMatch(a -> Arrays.equals(a, newPos));
+    }
+
+    private List<int[]> getFigureMoves(String figure, int[] oldPos) throws Exception {
         if (figure == null) {
-            return false;
+            return null;
         }
         String typeOfFigure = figure.substring(1, 3);
 
         switch (typeOfFigure) {
             case "ki" -> {
                 // king
-                return getKingMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos));
+                return getKingMoves(oldPos, figure);
             }
             case "qu" -> {
                 // queen
-                return getStraightMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos)) || getDiagonalMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos));
+                List<int[]> straightAndDiagonalMoves = getStraightMoves(oldPos, figure);
+                straightAndDiagonalMoves.addAll(getDiagonalMoves(oldPos, figure));
+
+                return straightAndDiagonalMoves;
             }
             case "bi" -> {
                 // bishop
-                return getDiagonalMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos));
+                return getDiagonalMoves(oldPos, figure);
             }
             case "kn" -> {
                 // knight
-                return getKnightMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos));
+                return getKnightMoves(oldPos, figure);
             }
             case "ro" -> {
                 // rook
-                return getStraightMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos));
+                return getStraightMoves(oldPos, figure);
             }
 
             case "pa" -> {
                 // pawn
-                return getPawnMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos));
+                return getPawnMoves(oldPos, figure);
             }
             default -> throw (new Exception("Piece not found"));
         }
@@ -166,6 +174,7 @@ public class GameLogic {
     private List<int[]> getPawnMoves(int[] oldPos, String figure) {
         List<int[]> moves = new ArrayList<>();
         int side = settings.getTopColor(figure.charAt(0));
+
         // collision left
         if (between(oldPos[1]-1,0, 7 )) {
             int[] valL = new int[]{side + oldPos[0], oldPos[1]-1};
@@ -178,8 +187,6 @@ public class GameLogic {
             }
         }
 
-
-
         // collision right
         if (between(oldPos[1]+1,0, 7 )) {
             int[] valR = new int[]{side + oldPos[0], oldPos[1]+1};
@@ -191,7 +198,6 @@ public class GameLogic {
                 }
             }
         }
-
 
         // move 1
         int[] val = new int[]{side + oldPos[0], oldPos[1]};
@@ -340,13 +346,18 @@ public class GameLogic {
         }
 
         List<int[]> validMoves = new ArrayList<>();
-        for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
-            for (int[] move : moves) {
+        boolean sameColor;
+        for (int[] move : moves) {
+            sameColor = false;
+            for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
                 if (Arrays.equals(entry.getValue(), move)) {
-                    if (entry.getKey().charAt(0) == color) {
+                    if (entry.getKey().charAt(0) == color && !entry.getKey().equals(figure)) {
+                        sameColor = true;
                         break;
                     }
                 }
+            }
+            if (!sameColor) {
                 validMoves.add(move);
             }
         }
@@ -414,6 +425,11 @@ public class GameLogic {
 
     private boolean between(int variable, int minValueInclusive, int maxValueInclusive) {
         return variable >= minValueInclusive && variable <= maxValueInclusive;
+    }
+
+    public void setPossibleCells(int[] oldPos, String figure) throws Exception {
+        List<int[]> moves = getFigureMoves(figure, oldPos);
+        settings.setPossibleMoves(moves);
     }
 }
 

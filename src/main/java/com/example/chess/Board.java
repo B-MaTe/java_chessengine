@@ -2,6 +2,7 @@ package com.example.chess;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Board extends JPanel {
@@ -9,13 +10,14 @@ public class Board extends JPanel {
     String currFigure;
     Settings settings;
     Figures figures;
-    Color darkColor, lightColor;
+    Color darkColor, lightColor, possibleMoveColor;
     Board(Figures figures, Settings settings) {
 
         this.figures = figures;
         this.settings = settings;
         this.darkColor = settings.getDarkColor();
         this.lightColor = settings.getLightColor();
+        this.possibleMoveColor = settings.getPossibleMoveColor();
     }
 
     public void paint(Graphics g) {
@@ -47,6 +49,17 @@ public class Board extends JPanel {
                 g.fillRect(cellSize*col+settings.getOffsetX(), cellSize*row+settings.getOffsetY(), cellSize, cellSize);
             }
         }
+
+        if (settings.getPossibleMoves() != null) {
+            g.setColor(settings.getPossibleMoveColor());
+            for (int[] move : settings.getPossibleMoves()) {
+                if (settings.getFigurePositions().values().stream().anyMatch(a -> Arrays.equals(a, move))) {
+                    g.fillRect(cellSize*move[1]+settings.getOffsetX(), cellSize*move[0]+settings.getOffsetY(), cellSize, cellSize);
+                }
+                g.fillOval(cellSize*move[1]+settings.getOffsetX() + (cellSize / 10), cellSize*move[0]+settings.getOffsetY() + (cellSize / 10), cellSize - (cellSize / 5), cellSize - (cellSize / 5));
+            }
+        }
+
 
         figurePositions = settings.getFigurePositions();
         for (String key : figures.getFigures().keySet()) {

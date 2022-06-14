@@ -38,6 +38,11 @@ public class Actions extends MouseAdapter {
                 if (Arrays.equals(entry.getValue(), new int[]{getCol(), getRow()})) {
                     updateOldPosToNew();
                     setCurrPiece(entry.getKey());
+                    try {
+                        gameLogic.setPossibleCells(new int[]{getCol(), getRow()}, entry.getKey());
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
             if (getCurrPiece() == null) {
@@ -51,6 +56,7 @@ public class Actions extends MouseAdapter {
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        settings.setPossibleMoves(null);
         if (isOnBoard()) {
             try {
                 // check if user made a legal move

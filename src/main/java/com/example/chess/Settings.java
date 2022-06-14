@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.List;
 
 public class Settings {
     private int WIDTH = 1980;
@@ -16,9 +17,11 @@ public class Settings {
     private int cellSize = 85; // px
     private Color darkColor = Color.GRAY;
     private Color lightColor = Color.WHITE;
+    private Color possibleMoveColor = Color.cyan;
     private final HashMap<String, int[]> figurePositions;
     private int move = 0;
     private final HashMap<String, Boolean> figureMoved;
+    private List<int[]> possibleMoves = null;
     // 1 -> black is top, -1 -> white is top
     private final HashMap<Character, Integer> topColor;
     Settings() {
@@ -98,6 +101,14 @@ public class Settings {
 
     public void setLightColor(Color lightColor) {
         this.lightColor = lightColor;
+    }
+
+    public Color getPossibleMoveColor() {
+        return possibleMoveColor;
+    }
+
+    public void setPossibleMoveColor(Color possibleMoveColor) {
+        this.possibleMoveColor = possibleMoveColor;
     }
 
     public HashMap<String, int[]> getFigurePositions() {
@@ -182,5 +193,13 @@ public class Settings {
 
     public String getTitle() {
         return title;
+    }
+
+    public List<int[]> getPossibleMoves() {
+        return possibleMoves;
+    }
+
+    public void setPossibleMoves(List<int[]> possibleMoves) {
+        this.possibleMoves = possibleMoves;
     }
 }
