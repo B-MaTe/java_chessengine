@@ -14,6 +14,7 @@ public class Actions extends MouseAdapter {
     private int row, col, oldRow, oldCol;
     String currPiece;
     boolean onBoard;
+    boolean leftClickReleased = true;
     Actions(Board board, Figures figures, Settings settings, GameLogic gameLogic) {
         super();
         this.board = board;
@@ -24,8 +25,12 @@ public class Actions extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (!isLeftClickReleased()) {
+            return;
+        }
         int unmask = InputEvent.BUTTON1_DOWN_MASK;
         if ((e.getModifiersEx() & unmask) == unmask) {
+            setLeftClickReleased(false);
             setNewPos(e);
             if (getRow() < 0 || getRow() > 7 || getCol() < 0 || getCol() > 7) {
                 setOnBoard(false);
@@ -56,28 +61,34 @@ public class Actions extends MouseAdapter {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        settings.setPossibleMoves(null);
-        if (isOnBoard()) {
-            try {
-                // check if user made a legal move
-                if (getOldRow() != getRow() || getOldCol() != getCol() && getCurrPiece() != null) {
-                    // check if move is valid
-                    if (gameLogic.checkMove(getCurrPiece(), new int[]{getCol(), getRow()}, new int[]{getOldCol(), getOldRow()})) {
-                        // moves++
-                        settings.setMove(settings.getMove() + 1);
-                        // figure moved
-                        settings.setFigureMoved(getCurrPiece());
-                        // take the move back
-                    } else {
-                        takeBackMove();
-                    }
-                }
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
+        if (e.getButton() == 1) {
+            setLeftClickReleased(true);
         }
-        // reassign the values to null
-        setValuesToNull();
+        if (isLeftClickReleased()) {
+            settings.setPossibleMoves(null);
+            if (isOnBoard()) {
+                try {
+                    // check if user made a legal move
+                    if (getOldRow() != getRow() || getOldCol() != getCol() && getCurrPiece() != null) {
+                        // check if move is valid
+                        if (gameLogic.checkMove(getCurrPiece(), new int[]{getCol(), getRow()}, new int[]{getOldCol(), getOldRow()})) {
+                            // moves++
+                            settings.setMove(settings.getMove() + 1);
+                            // figure moved
+                            settings.setFigureMoved(getCurrPiece());
+                            // take the move back
+                        } else {
+                            takeBackMove();
+                        }
+                    }
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            // reassign the values to null
+            setValuesToNull();
+        }
+
     }
 
     @Override
@@ -126,6 +137,15 @@ public class Actions extends MouseAdapter {
     private void moveFigure(String figure) {
         board.setCurrFigure(getCurrPiece());
         settings.moveFigure(figure, new int[]{getCol(), getRow()});
+    }
+
+
+    public boolean isLeftClickReleased() {
+        return leftClickReleased;
+    }
+
+    public void setLeftClickReleased(boolean leftClickReleased) {
+        this.leftClickReleased = leftClickReleased;
     }
 
     public int getOldRow() {

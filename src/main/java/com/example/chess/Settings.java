@@ -14,7 +14,7 @@ public class Settings {
     private String title = "Chess";
     private int offsetX = 150; // px
     private int offsetY = 75; // px
-    private int cellSize = 85; // px
+    private int cellSize = 100; // px
     private Color darkColor = Color.GRAY;
     private Color lightColor = Color.WHITE;
     private Color possibleMoveColor = Color.cyan;
