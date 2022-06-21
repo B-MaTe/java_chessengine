@@ -21,6 +21,7 @@ public class GameLogic {
 
     // This method is called by Actions
     public boolean checkMove(String figure, int[] newPos, int[] oldPos) throws Exception {
+        //getAllMoves();
         if (figure != null && newPos != null && oldPos != null) {
             return validMove(figure, newPos, oldPos)  && handleCollision(checkCollision(figure, newPos), figure);
         }
@@ -31,12 +32,14 @@ public class GameLogic {
         return checkFigureMoves(figure, newPos, oldPos);
     }
 
-
     private boolean checkFigureMoves(String figure, int[] newPos, int[] oldPos) throws Exception {
-        return getFigureMoves(figure, oldPos).stream().anyMatch(a -> Arrays.equals(a, newPos));
+        /*for (int[] move : getCheckedPossibleMoves(oldPos, figure)) {
+            System.out.println(Arrays.toString(move));
+        }*/
+        return getCheckedPossibleMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos));
     }
 
-    private List<int[]> getFigureMoves(String figure, int[] oldPos) throws Exception {
+    private List<int[]> getFigureMoves(String figure, int[] oldPos, HashMap<String, int[]> table) throws Exception {
         if (figure == null) {
             return null;
         }
@@ -45,37 +48,40 @@ public class GameLogic {
         switch (typeOfFigure) {
             case "ki" -> {
                 // king
-                return getKingMoves(oldPos, figure);
+                return getKingMoves(oldPos, figure, table);
             }
             case "qu" -> {
                 // queen
-                List<int[]> straightAndDiagonalMoves = getStraightMoves(oldPos, figure);
-                straightAndDiagonalMoves.addAll(getDiagonalMoves(oldPos, figure));
+                List<int[]> straightAndDiagonalMoves = getStraightMoves(oldPos, figure, table);
+                straightAndDiagonalMoves.addAll(getDiagonalMoves(oldPos, figure, table));
 
                 return straightAndDiagonalMoves;
             }
             case "bi" -> {
                 // bishop
-                return getDiagonalMoves(oldPos, figure);
+                return getDiagonalMoves(oldPos, figure, table);
             }
             case "kn" -> {
                 // knight
-                return getKnightMoves(oldPos, figure);
+                return getKnightMoves(oldPos, figure, table);
             }
             case "ro" -> {
                 // rook
-                return getStraightMoves(oldPos, figure);
+                return getStraightMoves(oldPos, figure, table);
             }
-
             case "pa" -> {
                 // pawn
-                return getPawnMoves(oldPos, figure);
+                return getPawnMoves(oldPos, figure, table);
             }
             default -> throw (new Exception("Piece not found"));
         }
     }
 
-    private List<int[]> getDiagonalMoves(int[] oldPos, String figure) {
+    private HashMap<String, int[]> getCopyOfFigures() {
+        return new HashMap<>(getFigures());
+    }
+
+    private List<int[]> getDiagonalMoves(int[] oldPos, String figure, HashMap<String, int[]> table) {
         char color = figure.charAt(0);
         List<int[]> moves = new ArrayList<>();
         boolean foundPiece;
@@ -87,7 +93,7 @@ public class GameLogic {
             int min = Math.min(oldPos[0], oldPos[1]);
             for (int i = 1; i <= min; i++) {
                 int[] val = new int[]{oldPos[0]-i, oldPos[1]-i};
-                for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                for (Map.Entry<String, int[]> entry : table.entrySet()) {
                     if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                         foundPiece = true;
                         if (entry.getKey().charAt(0) != color) {
@@ -109,7 +115,7 @@ public class GameLogic {
             int min = Math.min(oldPos[0], 7 - oldPos[1]);
             for (int i = 1; i <= min; i++) {
                 int[] val = new int[]{oldPos[0]-i, oldPos[1]+i};
-                for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                for (Map.Entry<String, int[]> entry : table.entrySet()) {
                     if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                         foundPiece = true;
                         if (entry.getKey().charAt(0) != color) {
@@ -131,7 +137,7 @@ public class GameLogic {
             int min = Math.min(7 - oldPos[0], oldPos[1]);
             for (int i = 1; i <= min; i++) {
                 int[] val = new int[]{oldPos[0]+i, oldPos[1]-i};
-                for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                for (Map.Entry<String, int[]> entry : table.entrySet()) {
                     if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                         foundPiece = true;
                         if (entry.getKey().charAt(0) != color) {
@@ -153,7 +159,7 @@ public class GameLogic {
             int min = Math.min(7 - oldPos[0], 7 - oldPos[1]);
             for (int i = 1; i <= min; i++) {
                 int[] val = new int[]{oldPos[0]+i, oldPos[1]+i};
-                for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                for (Map.Entry<String, int[]> entry : table.entrySet()) {
                     if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                         foundPiece = true;
                         if (entry.getKey().charAt(0) != color) {
@@ -171,14 +177,14 @@ public class GameLogic {
         return moves;
     }
 
-    private List<int[]> getPawnMoves(int[] oldPos, String figure) {
+    private List<int[]> getPawnMoves(int[] oldPos, String figure, HashMap<String, int[]> table) {
         List<int[]> moves = new ArrayList<>();
         int side = settings.getTopColor(figure.charAt(0));
 
         // collision left
         if (between(oldPos[1]-1,0, 7 )) {
             int[] valL = new int[]{side + oldPos[0], oldPos[1]-1};
-            for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+            for (Map.Entry<String, int[]> entry : table.entrySet()) {
                 if (Arrays.equals(entry.getValue(), valL) && !entry.getKey().equals(figure)) {
                     if (entry.getKey().charAt(0) != figure.charAt(0)) {
                         moves.add(valL);
@@ -190,7 +196,7 @@ public class GameLogic {
         // collision right
         if (between(oldPos[1]+1,0, 7 )) {
             int[] valR = new int[]{side + oldPos[0], oldPos[1]+1};
-            for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+            for (Map.Entry<String, int[]> entry : table.entrySet()) {
                 if (Arrays.equals(entry.getValue(), valR) && !entry.getKey().equals(figure)) {
                     if (entry.getKey().charAt(0) != figure.charAt(0)) {
                         moves.add(valR);
@@ -201,7 +207,7 @@ public class GameLogic {
 
         // move 1
         int[] val = new int[]{side + oldPos[0], oldPos[1]};
-        for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+        for (Map.Entry<String, int[]> entry : table.entrySet()) {
             if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                 return moves;
             }
@@ -211,7 +217,7 @@ public class GameLogic {
         // move 2
         if (!settings.getFigureMoved().get(figure)) {
             int[] doubleVal = new int[]{2*side + oldPos[0], oldPos[1]};
-            for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+            for (Map.Entry<String, int[]> entry : table.entrySet()) {
                 if (Arrays.equals(entry.getValue(), doubleVal) && !entry.getKey().equals(figure)) {
                     return moves;
                 }
@@ -221,7 +227,7 @@ public class GameLogic {
         return moves;
     }
 
-    private List<int[]> getStraightMoves(int[] oldPos, String figure) {
+    private List<int[]> getStraightMoves(int[] oldPos, String figure, HashMap<String, int[]> table) {
         char color = figure.charAt(0);
         List<int[]> moves = new ArrayList<>();
         boolean foundPiece;
@@ -232,7 +238,7 @@ public class GameLogic {
         if (oldPos[0] != 7) {
             for (int i = oldPos[0]+1; i < 8; i++) {
                 int[] val = new int[]{i ,oldPos[1]};
-                for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                for (Map.Entry<String, int[]> entry : table.entrySet()) {
                     if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                         foundPiece = true;
                         if (entry.getKey().charAt(0) != color) {
@@ -254,7 +260,7 @@ public class GameLogic {
         if (oldPos[0] != 0) {
             for (int i = oldPos[0]-1; i > -1; i--) {
                 int[] val = new int[]{i ,oldPos[1]};
-                for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                for (Map.Entry<String, int[]> entry : table.entrySet()) {
                     if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                         foundPiece = true;
                         if (entry.getKey().charAt(0) != color) {
@@ -276,7 +282,7 @@ public class GameLogic {
         if (oldPos[1] != 0) {
             for (int i = oldPos[1]-1; i > -1; i--) {
                 int[] val = new int[]{oldPos[0] , i};
-                for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                for (Map.Entry<String, int[]> entry : table.entrySet()) {
                     if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                         foundPiece = true;
                         if (entry.getKey().charAt(0) != color) {
@@ -298,7 +304,7 @@ public class GameLogic {
         if (oldPos[1] != 7) {
             for (int i = oldPos[1]+1; i < 8; i++) {
                 int[] val = new int[]{oldPos[0] ,i};
-                for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                for (Map.Entry<String, int[]> entry : table.entrySet()) {
                     if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                         foundPiece = true;
                         if (entry.getKey().charAt(0) != color) {
@@ -317,7 +323,7 @@ public class GameLogic {
         return moves;
     }
 
-    private List<int[]> getKnightMoves(int[] oldPos, String figure) {
+    private List<int[]> getKnightMoves(int[] oldPos, String figure, HashMap<String, int[]> table) {
         char color = figure.charAt(0);
         List<int[]> moves = new ArrayList<>();
         if (between(oldPos[0]+1, 0, 7) && between(oldPos[1]+2, 0, 7)) {
@@ -349,7 +355,7 @@ public class GameLogic {
         boolean sameColor;
         for (int[] move : moves) {
             sameColor = false;
-            for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+            for (Map.Entry<String, int[]> entry : table.entrySet()) {
                 if (Arrays.equals(entry.getValue(), move)) {
                     if (entry.getKey().charAt(0) == color && !entry.getKey().equals(figure)) {
                         sameColor = true;
@@ -364,7 +370,7 @@ public class GameLogic {
         return validMoves;
     }
 
-    private List<int[]> getKingMoves(int[] oldPos, String figure) {
+    private List<int[]> getKingMoves(int[] oldPos, String figure, HashMap<String, int[]> table) {
         char color = figure.charAt(0);
         List<int[]> moves = new ArrayList<>();
         boolean foundPiece;
@@ -374,7 +380,7 @@ public class GameLogic {
                 if (i != 0 || j != 0) {
                     if (between(oldPos[0]+i, 0, 7) && between(oldPos[1]+j,0,7 )) {
                         int[] val = new int[]{oldPos[0]+i ,oldPos[1]+j};
-                        for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
+                        for (Map.Entry<String, int[]> entry : table.entrySet()) {
                             if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
                                 foundPiece = true;
                                 if (entry.getKey().charAt(0) != color) {
@@ -427,9 +433,59 @@ public class GameLogic {
         return variable >= minValueInclusive && variable <= maxValueInclusive;
     }
 
+    private List<int[]> getCheckedPossibleMoves(int[] oldPos, String figure) throws Exception {
+        HashMap<String, int[]> tableCopy = getCopyOfFigures();
+        List<int[]> moves = getFigureMoves(figure, oldPos, tableCopy);
+        List<int[]> checkedMoves = new ArrayList<>();
+        for (int[] move : moves) {
+            moveTemporary(figure, move, tableCopy);
+            if (!isChess(figure.charAt(0), tableCopy)) {
+                checkedMoves.add(move);
+            }
+            tableCopy = getCopyOfFigures();
+        }
+        return checkedMoves;
+    }
+
     public void setPossibleCells(int[] oldPos, String figure) throws Exception {
-        List<int[]> moves = getFigureMoves(figure, oldPos);
-        settings.setPossibleMoves(moves);
+        settings.setPossibleMoves(getCheckedPossibleMoves(oldPos, figure));
+    }
+
+    private void moveTemporary(String figure, int[] move, HashMap<String, int[]> table) {
+        // make move
+        table.put(figure, move);
+        // check collision
+        for (Map.Entry<String, int[]> entry : table.entrySet()) {
+            if (Arrays.equals(entry.getValue(), move) && !entry.getKey().equals(figure)) {
+                table.remove(entry.getKey());
+                return;
+            }
+        }
+    }
+
+    private boolean isChess(char color, HashMap<String, int[]> table) throws Exception {
+        // get the position of the king
+        // figure.charAt(0) -> color + "ki" -> wki/bki
+        int[] kingPos = table.get(color + "ki");
+        for (Map.Entry<String, int[]> entry : table.entrySet()) {
+            // different color
+            if (entry.getKey().charAt(0) != color) {
+                if (getFigureMoves(entry.getKey(), entry.getValue(), table).stream().anyMatch(a -> Arrays.equals(a, kingPos))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private HashMap<String, List<int[]>> getAllMovesForOneColor(char color, HashMap<String, int[]> table) throws Exception {
+        HashMap<String, List<int[]>> moves = new HashMap<>();
+        for (Map.Entry<String, int[]> entry : table.entrySet()) {
+            if (entry.getKey().charAt(0) == color) {
+                moves.put(entry.getKey(), getFigureMoves(entry.getKey(), entry.getValue(), table));
+            }
+        }
+        return moves;
     }
 }
 
