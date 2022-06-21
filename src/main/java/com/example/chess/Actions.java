@@ -41,12 +41,14 @@ public class Actions extends MouseAdapter {
             for (Map.Entry<String, int[]> entry : settings.getFigurePositions().entrySet()) {
                 // check if the mouse coordinates (x, y) match any figure on the board
                 if (Arrays.equals(entry.getValue(), new int[]{getCol(), getRow()})) {
-                    updateOldPosToNew();
-                    setCurrPiece(entry.getKey());
-                    try {
-                        gameLogic.setPossibleCells(new int[]{getCol(), getRow()}, entry.getKey());
-                    } catch (Exception ex) {
-                        throw new RuntimeException(ex);
+                    if (entry.getKey().charAt(0) == settings.getTurn()) {
+                        updateOldPosToNew();
+                        setCurrPiece(entry.getKey());
+                        try {
+                            gameLogic.setPossibleCells(new int[]{getCol(), getRow()}, entry.getKey());
+                        } catch (Exception ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
             }
@@ -77,7 +79,13 @@ public class Actions extends MouseAdapter {
                             // figure moved
                             settings.setFigureMoved(getCurrPiece());
                             // check if move caused checkmate
-                            System.out.println(gameLogic.checkIfCheckmate(getCurrPiece().charAt(0), settings.getFigurePositions()));
+                            settings.setCheckmate(gameLogic.checkIfCheckmate(getCurrPiece().charAt(0), settings.getFigurePositions()));
+                            // swap turn
+                            if (settings.getTurn() == 'w') {
+                                settings.setTurn('b');
+                            } else {
+                                settings.setTurn('w');
+                            }
                         // take the move back
                         } else {
                             takeBackMove();

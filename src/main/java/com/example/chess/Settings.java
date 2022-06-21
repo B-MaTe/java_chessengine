@@ -22,8 +22,11 @@ public class Settings {
     private int move = 0;
     private final HashMap<String, Boolean> figureMoved;
     private List<int[]> possibleMoves = null;
+    private char turn = 'w';
     // 1 -> black is top, -1 -> white is top
     private final HashMap<Character, Integer> topColor;
+    private boolean checkmate = false;
+    private final HashMap<Character, String> checkmateMessage;
     Settings() {
         this.topColor = new HashMap<>();
         topColor.put('w', -1);
@@ -65,6 +68,29 @@ public class Settings {
         for (String key : figurePositions.keySet()) {
             figureMoved.put(key, false);
         }
+        this.checkmateMessage = new HashMap<>(2);
+        checkmateMessage.put('w', "Checkmate, Black won the game!");
+        checkmateMessage.put('b', "Checkmate, White won the game!");
+    }
+
+    public HashMap<Character, String> getCheckmateMessage() {
+        return checkmateMessage;
+    }
+
+    public boolean isCheckmate() {
+        return checkmate;
+    }
+
+    public void setCheckmate(boolean checkmate) {
+        this.checkmate = checkmate;
+    }
+
+    public char getTurn() {
+        return turn;
+    }
+
+    public void setTurn(char turn) {
+        this.turn = turn;
     }
 
     public int getTopColor(char color) {

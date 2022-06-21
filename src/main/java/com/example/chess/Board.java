@@ -22,6 +22,23 @@ public class Board extends JPanel {
 
     public void paint(Graphics g) {
         super.paint(g);
+
+        //draw turn
+        if (!settings.isCheckmate()) {
+            Font turnFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 2);
+            g.setFont(turnFont);
+            g.drawChars(new char[]{Character.toUpperCase(settings.getTurn())}, 0, 1, settings.getOffsetX() / 2, settings.getWIDTH() / 4);
+        }
+
+        // draw if checkmate
+        if (settings.isCheckmate()) {
+            Font checkmateFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 2);
+            g.setFont(checkmateFont);
+            g.setColor(Color.red);
+            g.drawString(settings.getCheckmateMessage().get(settings.getTurn()), settings.getOffsetX() + settings.getCellSize() * 9, settings.getWIDTH() / 4);
+        }
+
+        // draw board
         boolean isWhiteRowStart = true;
         char nextColor = 'w';
         int cellSize = settings.getCellSize();
