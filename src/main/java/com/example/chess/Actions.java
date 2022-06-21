@@ -76,7 +76,9 @@ public class Actions extends MouseAdapter {
                             settings.setMove(settings.getMove() + 1);
                             // figure moved
                             settings.setFigureMoved(getCurrPiece());
-                            // take the move back
+                            // check if move caused checkmate
+                            System.out.println(gameLogic.checkIfCheckmate(getCurrPiece().charAt(0), settings.getFigurePositions()));
+                        // take the move back
                         } else {
                             takeBackMove();
                         }

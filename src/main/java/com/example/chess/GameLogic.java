@@ -33,9 +33,6 @@ public class GameLogic {
     }
 
     private boolean checkFigureMoves(String figure, int[] newPos, int[] oldPos) throws Exception {
-        /*for (int[] move : getCheckedPossibleMoves(oldPos, figure)) {
-            System.out.println(Arrays.toString(move));
-        }*/
         return getCheckedPossibleMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos));
     }
 
@@ -482,10 +479,27 @@ public class GameLogic {
         HashMap<String, List<int[]>> moves = new HashMap<>();
         for (Map.Entry<String, int[]> entry : table.entrySet()) {
             if (entry.getKey().charAt(0) == color) {
-                moves.put(entry.getKey(), getFigureMoves(entry.getKey(), entry.getValue(), table));
+                moves.put(entry.getKey(), getCheckedPossibleMoves(entry.getValue(), entry.getKey()));
             }
         }
         return moves;
+    }
+
+
+    public boolean checkIfCheckmate(char color, HashMap<String, int[]> table) throws Exception {
+        // get a color that moved the last move.
+        // check the other sides moves
+        // if the other side has any moves with any figure -> return false
+        // if not return and the loop is done -> return true
+        for (Map.Entry<String, int[]> entry : table.entrySet()) {
+            if (entry.getKey().charAt(0) != color) {
+                if (getCheckedPossibleMoves(entry.getValue(), entry.getKey()).size() > 0) {
+                    return false;
+                }
+
+            }
+        }
+        return true;
     }
 }
 
