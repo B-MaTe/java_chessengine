@@ -444,6 +444,17 @@ public class GameLogic {
         return new int[]{row, 6};
     }
 
+    public void handleCastle(char color, char direction, int row, HashMap<String, int[]> table) {
+        // right side castle
+        if (direction == 'R') {
+            table.put(color + "ro1", new int[]{row, 5});
+        } else {
+            // left side castle
+            table.put(color + "ro", new int[]{row, 3});
+        }
+
+    }
+
     private String checkCollision(String figure, int[] pos) {
         if (figure != null && pos != null) {
             for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {

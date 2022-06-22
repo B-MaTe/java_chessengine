@@ -27,7 +27,7 @@ public class Settings {
     private final HashMap<Character, Integer> topColor;
     private boolean checkmate = false;
     private final HashMap<Character, String> checkmateMessage;
-    private HashMap<String, int[]> kingStartingPos;
+    private final HashMap<String, int[]> kingStartingPos;
     Settings() {
         this.kingStartingPos = new HashMap<>();
         this.topColor = new HashMap<>();

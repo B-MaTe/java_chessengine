@@ -3,7 +3,9 @@ package com.example.chess;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class Actions extends MouseAdapter {
@@ -76,6 +78,20 @@ public class Actions extends MouseAdapter {
                         if (gameLogic.checkMove(getCurrPiece(), new int[]{getCol(), getRow()}, new int[]{getOldCol(), getOldRow()})) {
                             // moves++
                             settings.setMove(settings.getMove() + 1);
+                            // check if move was castle
+                            if (getCurrPiece().substring(1, 3).equals("ki")) {
+                                // if abs(oldCol - newCol) > 1 -> castle
+                                if (Math.abs(getOldRow() - getRow()) > 1) {
+                                    System.out.println("_::::");
+                                    // left sided castle
+                                    if (getOldRow() > getRow()) {
+                                        gameLogic.handleCastle(getCurrPiece().charAt(0), 'L', getCol() ,settings.getFigurePositions());
+                                    } else {
+                                        // right sided castle
+                                        gameLogic.handleCastle(getCurrPiece().charAt(0), 'R', getCol() ,settings.getFigurePositions());
+                                    }
+                                }
+                            }
                             // figure moved
                             settings.setFigureMoved(getCurrPiece());
                             // check if move caused checkmate
