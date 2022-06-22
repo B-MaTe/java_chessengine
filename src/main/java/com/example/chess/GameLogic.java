@@ -21,19 +21,11 @@ public class GameLogic {
 
     // This method is called by Actions
     public boolean checkMove(String figure, int[] newPos, int[] oldPos) throws Exception {
-        //getAllMoves();
         if (figure != null && newPos != null && oldPos != null) {
-            return validMove(figure, newPos, oldPos)  && handleCollision(checkCollision(figure, newPos), figure);
+            // getCheckedPossibleMoves(oldPos, figure)
+            return settings.getPossibleMoves().stream().anyMatch(a -> Arrays.equals(a, newPos)) && handleCollision(checkCollision(figure, newPos), figure);
         }
         return false;
-    }
-
-    private boolean validMove(String figure, int[] newPos, int[] oldPos) throws Exception {
-        return checkFigureMoves(figure, newPos, oldPos);
-    }
-
-    private boolean checkFigureMoves(String figure, int[] newPos, int[] oldPos) throws Exception {
-        return getCheckedPossibleMoves(oldPos, figure).stream().anyMatch(a -> Arrays.equals(a, newPos));
     }
 
     private List<int[]> getFigureMoves(String figure, int[] oldPos, HashMap<String, int[]> table) throws Exception {
@@ -367,7 +359,7 @@ public class GameLogic {
         return validMoves;
     }
 
-    private List<int[]> getKingMoves(int[] oldPos, String figure, HashMap<String, int[]> table) {
+    private List<int[]> getKingMoves(int[] oldPos, String figure, HashMap<String, int[]> table) throws Exception {
         char color = figure.charAt(0);
         List<int[]> moves = new ArrayList<>();
         boolean foundPiece;
@@ -394,8 +386,62 @@ public class GameLogic {
                 }
             }
         }
+        // check if can castle
+        String king = color + "ki";
+        if (!settings.getFigureMoved().get(king) && Arrays.equals(table.get(king), settings.kingStartingPos(king))) {
+            if (!settings.getFigureMoved().get(color + "ro1")) {
+                int[] castleR = castleRight(king, table);
+                if (castleR != null) {
+                    moves.add(castleR);
+                }
+            }
+            if (!settings.getFigureMoved().get(color + "ro")) {
+                int[] castleL = castleLeft(king, table);
+                if (castleL != null) {
+                    moves.add(castleL);
+                }
+            }
 
-        return  moves;
+
+        }
+
+        return moves;
+    }
+
+    private int[] castleLeft(String king, HashMap<String, int[]> table) throws Exception {
+        List<Integer> cols = new ArrayList<>();
+        cols.add(1);
+        cols.add(2);
+        cols.add(3);
+        int row = settings.kingStartingPos(king)[0];
+        for (Map.Entry<String, int[]> entry : table.entrySet()) {
+            if (entry.getValue()[0] == row) {
+                if (!entry.getKey().equals(king)) {
+                    if (cols.contains(entry.getValue()[1])) {
+                        return null;
+                    }
+                }
+            }
+        }
+        return new int[]{row, 2};
+    }
+
+    private int[] castleRight(String king, HashMap<String, int[]> table) throws Exception {
+        List<Integer> cols = new ArrayList<>();
+        cols.add(5);
+        cols.add(6);
+        int row = settings.kingStartingPos(king)[0];
+        for (Map.Entry<String, int[]> entry : table.entrySet()) {
+            if (entry.getValue()[0] == row) {
+                if (!entry.getKey().equals(king)) {
+                    if (cols.contains(entry.getValue()[1])) {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        return new int[]{row, 6};
     }
 
     private String checkCollision(String figure, int[] pos) {
@@ -430,7 +476,7 @@ public class GameLogic {
         return variable >= minValueInclusive && variable <= maxValueInclusive;
     }
 
-    private List<int[]> getCheckedPossibleMoves(int[] oldPos, String figure) throws Exception {
+    public List<int[]> getCheckedPossibleMoves(int[] oldPos, String figure) throws Exception {
         HashMap<String, int[]> tableCopy = getCopyOfFigures();
         List<int[]> moves = getFigureMoves(figure, oldPos, tableCopy);
         List<int[]> checkedMoves = new ArrayList<>();
@@ -442,10 +488,6 @@ public class GameLogic {
             tableCopy = getCopyOfFigures();
         }
         return checkedMoves;
-    }
-
-    public void setPossibleCells(int[] oldPos, String figure) throws Exception {
-        settings.setPossibleMoves(getCheckedPossibleMoves(oldPos, figure));
     }
 
     private void moveTemporary(String figure, int[] move, HashMap<String, int[]> table) {
@@ -475,16 +517,18 @@ public class GameLogic {
         return false;
     }
 
-    private HashMap<String, List<int[]>> getAllMovesForOneColor(char color, HashMap<String, int[]> table) throws Exception {
+    public HashMap<String, List<int[]>> getAllMovesForOneColor(char color, HashMap<String, int[]> table) throws Exception {
+        long start = System.nanoTime();
         HashMap<String, List<int[]>> moves = new HashMap<>();
         for (Map.Entry<String, int[]> entry : table.entrySet()) {
             if (entry.getKey().charAt(0) == color) {
                 moves.put(entry.getKey(), getCheckedPossibleMoves(entry.getValue(), entry.getKey()));
             }
         }
+        long end = System.nanoTime();
+        System.out.println((end - start) / 1000000);
         return moves;
     }
-
 
     public boolean checkIfCheckmate(char color, HashMap<String, int[]> table) throws Exception {
         // get a color that moved the last move.

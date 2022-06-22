@@ -27,7 +27,9 @@ public class Settings {
     private final HashMap<Character, Integer> topColor;
     private boolean checkmate = false;
     private final HashMap<Character, String> checkmateMessage;
+    private HashMap<String, int[]> kingStartingPos;
     Settings() {
+        this.kingStartingPos = new HashMap<>();
         this.topColor = new HashMap<>();
         topColor.put('w', -1);
         topColor.put('b', 1);
@@ -71,6 +73,8 @@ public class Settings {
         this.checkmateMessage = new HashMap<>(2);
         checkmateMessage.put('w', "Checkmate, Black won the game!");
         checkmateMessage.put('b', "Checkmate, White won the game!");
+        kingStartingPos.put("wki", figurePositions.get("wki"));
+        kingStartingPos.put("bki", figurePositions.get("bki"));
     }
 
     public HashMap<Character, String> getCheckmateMessage() {
@@ -227,5 +231,9 @@ public class Settings {
 
     public void setPossibleMoves(List<int[]> possibleMoves) {
         this.possibleMoves = possibleMoves;
+    }
+
+    public int[] kingStartingPos(String king) {
+        return kingStartingPos.get(king);
     }
 }

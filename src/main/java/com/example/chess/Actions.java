@@ -45,7 +45,8 @@ public class Actions extends MouseAdapter {
                         updateOldPosToNew();
                         setCurrPiece(entry.getKey());
                         try {
-                            gameLogic.setPossibleCells(new int[]{getCol(), getRow()}, entry.getKey());
+                            // set the possible moves for highlighting, and validation
+                            settings.setPossibleMoves(gameLogic.getCheckedPossibleMoves(new int[]{getCol(), getRow()}, entry.getKey()));
                         } catch (Exception ex) {
                             throw new RuntimeException(ex);
                         }
@@ -67,7 +68,6 @@ public class Actions extends MouseAdapter {
             setLeftClickReleased(true);
         }
         if (isLeftClickReleased()) {
-            settings.setPossibleMoves(null);
             if (isOnBoard()) {
                 try {
                     // check if user made a legal move
@@ -121,6 +121,7 @@ public class Actions extends MouseAdapter {
     private void setValuesToNull() {
         setCurrPiece(null);
         board.setCurrFigure(null);
+        settings.setPossibleMoves(null);
     }
 
     private void takeBackMove() {
