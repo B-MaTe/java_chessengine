@@ -168,6 +168,7 @@ public class GameLogic {
     private List<int[]> getPawnMoves(int[] oldPos, String figure, HashMap<String, int[]> table) {
         List<int[]> moves = new ArrayList<>();
         int side = settings.getTopColor(figure.charAt(0));
+        boolean canEnPassant = true;
 
         // collision left
         if (between(oldPos[1]-1,0, 7 )) {
@@ -176,6 +177,7 @@ public class GameLogic {
                 if (Arrays.equals(entry.getValue(), valL) && !entry.getKey().equals(figure)) {
                     if (entry.getKey().charAt(0) != figure.charAt(0)) {
                         moves.add(valL);
+                        canEnPassant = false;
                     }
                 }
             }
@@ -188,6 +190,7 @@ public class GameLogic {
                 if (Arrays.equals(entry.getValue(), valR) && !entry.getKey().equals(figure)) {
                     if (entry.getKey().charAt(0) != figure.charAt(0)) {
                         moves.add(valR);
+                        canEnPassant = false;
                     }
                 }
             }
@@ -211,6 +214,16 @@ public class GameLogic {
                 }
             }
             moves.add(doubleVal);
+        } else {
+            if (settings.getLastMovedFigure() != null && canEnPassant) {
+                // check for En Passant
+                if (oldPos[0] == settings.getLastMovedFigurePos()[0]) {
+                    if (settings.getLastMovedFigure().startsWith("pa", 1) && Math.abs(settings.getLastMovedFigurePos()[0] - settings.getLastMovedFigurePrevPos()[0]) > 1) {
+                        moves.add(new int[]{settings.getLastMovedFigurePos()[0]+side, settings.getLastMovedFigurePos()[1]});
+                    }
+                }
+            }
+
         }
         return moves;
     }
@@ -443,17 +456,6 @@ public class GameLogic {
         return new int[]{row, 6};
     }
 
-    public void handleCastle(char color, char direction, int row, HashMap<String, int[]> table) {
-        // right side castle
-        if (direction == 'R') {
-            table.put(color + "ro1", new int[]{row, 5});
-        } else {
-            // left side castle
-            table.put(color + "ro", new int[]{row, 3});
-        }
-
-    }
-
     private String checkCollision(String figure, int[] pos) {
         if (figure != null && pos != null) {
             for (Map.Entry<String, int[]> entry : getFigures().entrySet()) {
@@ -466,6 +468,21 @@ public class GameLogic {
             }
         }
         return null;
+    }
+
+    public void handleCastle(char color, char direction, int row, HashMap<String, int[]> table) {
+        // right side castle
+        if (direction == 'R') {
+            table.put(color + "ro1", new int[]{row, 5});
+        } else {
+            // left side castle
+            table.put(color + "ro", new int[]{row, 3});
+        }
+
+    }
+
+    public void handleEnPassant(String collidedFigure, HashMap<String, int[]> table) {
+        table.remove(collidedFigure);
     }
 
     private boolean handleCollision(String collidedPiece, String figure) {
@@ -544,19 +561,6 @@ public class GameLogic {
         return false;
     }
 
-    public HashMap<String, List<int[]>> getAllMovesForOneColor(char color, HashMap<String, int[]> table) throws Exception {
-        long start = System.nanoTime();
-        HashMap<String, List<int[]>> moves = new HashMap<>();
-        for (Map.Entry<String, int[]> entry : table.entrySet()) {
-            if (entry.getKey().charAt(0) == color) {
-                moves.put(entry.getKey(), getCheckedPossibleMoves(entry.getValue(), entry.getKey()));
-            }
-        }
-        long end = System.nanoTime();
-        System.out.println((end - start) / 1000000);
-        return moves;
-    }
-
     public boolean checkIfCheckmate(char color, HashMap<String, int[]> table) throws Exception {
         // get a color that moved the last move.
         // check the other sides moves
@@ -571,6 +575,20 @@ public class GameLogic {
             }
         }
         return true;
+    }
+
+    public HashMap<String, List<int[]>> getAllMovesForOneColor(char color, HashMap<String, int[]> table) throws Exception {
+        long start = System.nanoTime();
+
+        HashMap<String, List<int[]>> moves = new HashMap<>();
+        for (Map.Entry<String, int[]> entry : table.entrySet()) {
+            if (entry.getKey().charAt(0) == color) {
+                moves.put(entry.getKey(), getCheckedPossibleMoves(entry.getValue(), entry.getKey()));
+            }
+        }
+        long end = System.nanoTime();
+        System.out.println((end - start) / 1000000);
+        return moves;
     }
 }
 

@@ -28,6 +28,9 @@ public class Settings {
     private boolean checkmate = false;
     private final HashMap<Character, String> checkmateMessage;
     private final HashMap<String, int[]> kingStartingPos;
+    private String lastMovedFigure = null;
+    private int[] lastMovedFigurePos = null;
+    private int[] lastMovedFigurePrevPos = null;
     Settings() {
         this.kingStartingPos = new HashMap<>();
         this.topColor = new HashMap<>();
@@ -75,6 +78,30 @@ public class Settings {
         checkmateMessage.put('b', "Checkmate, White won the game!");
         kingStartingPos.put("wki", figurePositions.get("wki"));
         kingStartingPos.put("bki", figurePositions.get("bki"));
+    }
+
+    public int[] getLastMovedFigurePrevPos() {
+        return lastMovedFigurePrevPos;
+    }
+
+    public void setLastMovedFigurePrevPos(int[] lastMovedFigurePrevPos) {
+        this.lastMovedFigurePrevPos = lastMovedFigurePrevPos;
+    }
+
+    public int[] getLastMovedFigurePos() {
+        return lastMovedFigurePos;
+    }
+
+    public void setLastMovedFigurePos(int[] lastMovedFigurePos) {
+        this.lastMovedFigurePos = lastMovedFigurePos;
+    }
+
+    public String getLastMovedFigure() {
+        return lastMovedFigure;
+    }
+
+    public void setLastMovedFigure(String lastMovedFigure) {
+        this.lastMovedFigure = lastMovedFigure;
     }
 
     public HashMap<Character, String> getCheckmateMessage() {

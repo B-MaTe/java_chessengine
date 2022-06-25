@@ -76,19 +76,10 @@ public class Actions extends MouseAdapter {
                         if (gameLogic.checkMove(getCurrPiece(), new int[]{getRow(), getCol()}, new int[]{getOldRow(), getOldCol()})) {
                             // moves++
                             settings.setMove(settings.getMove() + 1);
+                            // check if move was en passant
+                            checkEnPassant();
                             // check if move was castle
-                            if (getCurrPiece().substring(1, 3).equals("ki")) {
-                                // if abs(oldCol - newCol) > 1 -> castle
-                                if (Math.abs(getOldCol() - getCol()) > 1) {
-                                    // left sided castle
-                                    if (getOldCol() > getCol()) {
-                                        gameLogic.handleCastle(getCurrPiece().charAt(0), 'L', getRow() ,settings.getFigurePositions());
-                                    } else {
-                                        // right sided castle
-                                        gameLogic.handleCastle(getCurrPiece().charAt(0), 'R', getRow() ,settings.getFigurePositions());
-                                    }
-                                }
-                            }
+                            checkCastle();
                             // figure moved
                             settings.setFigureMoved(getCurrPiece());
                             // check if move caused checkmate
@@ -99,6 +90,10 @@ public class Actions extends MouseAdapter {
                             } else {
                                 settings.setTurn('w');
                             }
+                            // set last moved figure
+                            settings.setLastMovedFigure(getCurrPiece());
+                            settings.setLastMovedFigurePos(new int[]{getRow(), getCol()});
+                            settings.setLastMovedFigurePrevPos(new int[]{getOldRow(), getOldCol()});
                         // take the move back
                         } else {
                             takeBackMove();
@@ -110,6 +105,40 @@ public class Actions extends MouseAdapter {
             }
             // reassign the values to null
             setValuesToNull();
+        }
+
+    }
+
+    private void checkEnPassant() {
+        if (getCurrPiece().startsWith("pa", 1)) {
+            // check if move was capture
+            if (settings.getLastMovedFigure() != null) {
+                if (getOldCol() != getCol() && getCol() == settings.getLastMovedFigurePos()[1] && getRow()-settings.getTopColor(getCurrPiece().charAt(0)) == settings.getLastMovedFigurePos()[0]) {
+                    // check if there is a figure at that position, if not, it was en passant move
+                    int[] move = new int[]{getRow(), getCol()};
+                    if (!settings.getFigurePositions().containsValue(move)) {
+                        // remove figure
+                        gameLogic.removeFigure(settings.getLastMovedFigure());
+                    }
+                }
+            }
+
+
+        }
+    }
+
+    private void checkCastle() {
+        if (getCurrPiece().startsWith("ki", 1)) {
+            // if abs(oldCol - newCol) > 1 -> castle
+            if (Math.abs(getOldCol() - getCol()) > 1) {
+                // left sided castle
+                if (getOldCol() > getCol()) {
+                    gameLogic.handleCastle(getCurrPiece().charAt(0), 'L', getRow() ,settings.getFigurePositions());
+                } else {
+                    // right sided castle
+                    gameLogic.handleCastle(getCurrPiece().charAt(0), 'R', getRow() ,settings.getFigurePositions());
+                }
+            }
         }
 
     }
