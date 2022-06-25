@@ -25,9 +25,9 @@ public class Window extends JFrame implements ActionListener {
         frame.addMouseListener(actions);
         frame.addMouseMotionListener(actions);
         JFrame.setDefaultLookAndFeelDecorated(true);
-        frame.setSize(settings.getWIDTH(), settings.getHEIGHT());
-        // frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        // frame.setUndecorated(true);
+        //frame.setSize(settings.getWIDTH(), settings.getHEIGHT());
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setUndecorated(true);
         frame.setVisible(settings.getVisible());
         frame.setResizable(settings.getResizable());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

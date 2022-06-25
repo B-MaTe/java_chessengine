@@ -18,9 +18,8 @@ public class GameLogic {
         // return true if successfully removed figure
         return settings.removeFigure(figure) && figureClass.removeFigure(figure);
     }
-
     // This method is called by Actions
-    public boolean checkMove(String figure, int[] newPos, int[] oldPos) throws Exception {
+    public boolean checkMove(String figure, int[] newPos, int[] oldPos) {
         if (figure != null && newPos != null && oldPos != null) {
             // getCheckedPossibleMoves(oldPos, figure)
             return settings.getPossibleMoves().stream().anyMatch(a -> Arrays.equals(a, newPos)) && handleCollision(checkCollision(figure, newPos), figure);
@@ -359,7 +358,7 @@ public class GameLogic {
         return validMoves;
     }
 
-    private List<int[]> getKingMoves(int[] oldPos, String figure, HashMap<String, int[]> table) throws Exception {
+    private List<int[]> getKingMoves(int[] oldPos, String figure, HashMap<String, int[]> table) {
         char color = figure.charAt(0);
         List<int[]> moves = new ArrayList<>();
         boolean foundPiece;
@@ -386,7 +385,7 @@ public class GameLogic {
                 }
             }
         }
-        // check if can castle
+        // check if king can castle
         String king = color + "ki";
         if (!settings.getFigureMoved().get(king) && Arrays.equals(table.get(king), settings.kingStartingPos(king))) {
             if (!settings.getFigureMoved().get(color + "ro1")) {
@@ -408,7 +407,7 @@ public class GameLogic {
         return moves;
     }
 
-    private int[] castleLeft(String king, HashMap<String, int[]> table) throws Exception {
+    private int[] castleLeft(String king, HashMap<String, int[]> table) {
         List<Integer> cols = new ArrayList<>();
         cols.add(1);
         cols.add(2);
@@ -426,7 +425,7 @@ public class GameLogic {
         return new int[]{row, 2};
     }
 
-    private int[] castleRight(String king, HashMap<String, int[]> table) throws Exception {
+    private int[] castleRight(String king, HashMap<String, int[]> table) {
         List<Integer> cols = new ArrayList<>();
         cols.add(5);
         cols.add(6);
@@ -502,6 +501,21 @@ public class GameLogic {
     }
 
     private void moveTemporary(String figure, int[] move, HashMap<String, int[]> table) {
+        // check castle
+        if (figure.substring(1, 3).equals("ki")) {
+            if (Math.abs(move[1] - table.get(figure)[1]) > 1) {
+                // handle castling
+                int row = move[0];
+                char direction;
+                if (move[1] > table.get(figure)[1]) {
+                    direction = 'R';
+                } else {
+                    direction = 'L';
+                }
+                handleCastle(figure.charAt(0), direction, row, table);
+            }
+        }
+
         // make move
         table.put(figure, move);
         // check collision
@@ -511,6 +525,8 @@ public class GameLogic {
                 return;
             }
         }
+
+
     }
 
     private boolean isChess(char color, HashMap<String, int[]> table) throws Exception {

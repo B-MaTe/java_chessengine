@@ -3,9 +3,7 @@ package com.example.chess;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 public class Actions extends MouseAdapter {
@@ -42,13 +40,13 @@ public class Actions extends MouseAdapter {
             // set the mouse pos to (x, y) coordinates
             for (Map.Entry<String, int[]> entry : settings.getFigurePositions().entrySet()) {
                 // check if the mouse coordinates (x, y) match any figure on the board
-                if (Arrays.equals(entry.getValue(), new int[]{getCol(), getRow()})) {
+                if (Arrays.equals(entry.getValue(), new int[]{getRow(), getCol()})) {
                     if (entry.getKey().charAt(0) == settings.getTurn()) {
                         updateOldPosToNew();
                         setCurrPiece(entry.getKey());
                         try {
                             // set the possible moves for highlighting, and validation
-                            settings.setPossibleMoves(gameLogic.getCheckedPossibleMoves(new int[]{getCol(), getRow()}, entry.getKey()));
+                            settings.setPossibleMoves(gameLogic.getCheckedPossibleMoves(new int[]{getRow(), getCol()}, entry.getKey()));
                         } catch (Exception ex) {
                             throw new RuntimeException(ex);
                         }
@@ -75,20 +73,19 @@ public class Actions extends MouseAdapter {
                     // check if user made a legal move
                     if (getOldRow() != getRow() || getOldCol() != getCol() && getCurrPiece() != null) {
                         // check if move is valid
-                        if (gameLogic.checkMove(getCurrPiece(), new int[]{getCol(), getRow()}, new int[]{getOldCol(), getOldRow()})) {
+                        if (gameLogic.checkMove(getCurrPiece(), new int[]{getRow(), getCol()}, new int[]{getOldRow(), getOldCol()})) {
                             // moves++
                             settings.setMove(settings.getMove() + 1);
                             // check if move was castle
                             if (getCurrPiece().substring(1, 3).equals("ki")) {
                                 // if abs(oldCol - newCol) > 1 -> castle
-                                if (Math.abs(getOldRow() - getRow()) > 1) {
-                                    System.out.println("_::::");
+                                if (Math.abs(getOldCol() - getCol()) > 1) {
                                     // left sided castle
-                                    if (getOldRow() > getRow()) {
-                                        gameLogic.handleCastle(getCurrPiece().charAt(0), 'L', getCol() ,settings.getFigurePositions());
+                                    if (getOldCol() > getCol()) {
+                                        gameLogic.handleCastle(getCurrPiece().charAt(0), 'L', getRow() ,settings.getFigurePositions());
                                     } else {
                                         // right sided castle
-                                        gameLogic.handleCastle(getCurrPiece().charAt(0), 'R', getCol() ,settings.getFigurePositions());
+                                        gameLogic.handleCastle(getCurrPiece().charAt(0), 'R', getRow() ,settings.getFigurePositions());
                                     }
                                 }
                             }
@@ -142,7 +139,7 @@ public class Actions extends MouseAdapter {
 
     private void takeBackMove() {
         setOldPos();
-        settings.moveFigure(getCurrPiece(), new int[]{getCol(), getRow()});
+        settings.moveFigure(getCurrPiece(), new int[]{getRow(), getCol()});
         setOnBoard(false);
     }
 
@@ -157,13 +154,13 @@ public class Actions extends MouseAdapter {
     }
 
     private void setNewPos(MouseEvent e) {
-        setRow((e.getX() - settings.getOffsetX()) / settings.getCellSize());
-        setCol((e.getY() - settings.getOffsetY()) / settings.getCellSize());
+        setCol((e.getX() - settings.getOffsetX()) / settings.getCellSize());
+        setRow((e.getY() - settings.getOffsetY()) / settings.getCellSize());
     }
 
     private void moveFigure(String figure) {
         board.setCurrFigure(getCurrPiece());
-        settings.moveFigure(figure, new int[]{getCol(), getRow()});
+        settings.moveFigure(figure, new int[]{getRow(), getCol()});
     }
 
 

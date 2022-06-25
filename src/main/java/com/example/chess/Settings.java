@@ -13,9 +13,9 @@ public class Settings {
     private boolean resizable = false;
     private String title = "Chess";
     private int offsetX = 150; // px
-    private int offsetY = 75; // px
+    private int offsetY = 55; // px
     private int cellSize = 100; // px
-    private Color darkColor = Color.GRAY;
+    private Color darkColor = Color.gray;
     private Color lightColor = Color.WHITE;
     private Color possibleMoveColor = Color.cyan;
     private final HashMap<String, int[]> figurePositions;

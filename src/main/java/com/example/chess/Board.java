@@ -12,7 +12,6 @@ public class Board extends JPanel {
     Figures figures;
     Color darkColor, lightColor, possibleMoveColor;
     Board(Figures figures, Settings settings) {
-
         this.figures = figures;
         this.settings = settings;
         this.darkColor = settings.getDarkColor();
@@ -25,14 +24,14 @@ public class Board extends JPanel {
 
         //draw turn
         if (!settings.isCheckmate()) {
-            Font turnFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 2);
+            Font turnFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 4);
             g.setFont(turnFont);
             g.drawChars(new char[]{Character.toUpperCase(settings.getTurn())}, 0, 1, settings.getOffsetX() / 2, settings.getWIDTH() / 4);
         }
 
         // draw if checkmate
         if (settings.isCheckmate()) {
-            Font checkmateFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 2);
+            Font checkmateFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 4);
             g.setFont(checkmateFont);
             g.setColor(Color.red);
             g.drawString(settings.getCheckmateMessage().get(settings.getTurn()), settings.getOffsetX() + settings.getCellSize() * 9, settings.getWIDTH() / 4);
