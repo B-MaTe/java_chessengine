@@ -168,7 +168,6 @@ public class GameLogic {
     private List<int[]> getPawnMoves(int[] oldPos, String figure, HashMap<String, int[]> table) {
         List<int[]> moves = new ArrayList<>();
         int side = settings.getTopColor(figure.charAt(0));
-        boolean canEnPassant = true;
 
         // collision left
         if (between(oldPos[1]-1,0, 7 )) {
@@ -177,7 +176,6 @@ public class GameLogic {
                 if (Arrays.equals(entry.getValue(), valL) && !entry.getKey().equals(figure)) {
                     if (entry.getKey().charAt(0) != figure.charAt(0)) {
                         moves.add(valL);
-                        canEnPassant = false;
                     }
                 }
             }
@@ -190,20 +188,24 @@ public class GameLogic {
                 if (Arrays.equals(entry.getValue(), valR) && !entry.getKey().equals(figure)) {
                     if (entry.getKey().charAt(0) != figure.charAt(0)) {
                         moves.add(valR);
-                        canEnPassant = false;
                     }
                 }
             }
         }
 
         // move 1
+        boolean foundFigure = false;
         int[] val = new int[]{side + oldPos[0], oldPos[1]};
         for (Map.Entry<String, int[]> entry : table.entrySet()) {
             if (Arrays.equals(entry.getValue(), val) && !entry.getKey().equals(figure)) {
-                return moves;
+                foundFigure = true;
+                break;
             }
         }
-        moves.add(val);
+        if (!foundFigure) {
+            moves.add(val);
+        }
+
 
         // move 2
         if (!settings.getFigureMoved().get(figure)) {
@@ -215,9 +217,9 @@ public class GameLogic {
             }
             moves.add(doubleVal);
         } else {
-            if (settings.getLastMovedFigure() != null && canEnPassant) {
+            if (settings.getLastMovedFigure() != null) {
                 // check for En Passant
-                if (oldPos[0] == settings.getLastMovedFigurePos()[0]) {
+                if (oldPos[0] == settings.getLastMovedFigurePos()[0] && Math.abs(oldPos[1] - settings.getLastMovedFigurePos()[1]) == 1) {
                     if (settings.getLastMovedFigure().startsWith("pa", 1) && Math.abs(settings.getLastMovedFigurePos()[0] - settings.getLastMovedFigurePrevPos()[0]) > 1) {
                         moves.add(new int[]{settings.getLastMovedFigurePos()[0]+side, settings.getLastMovedFigurePos()[1]});
                     }
