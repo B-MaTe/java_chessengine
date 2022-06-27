@@ -1,6 +1,7 @@
 package com.example.chess;
 
 
+import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class GameLogic {
@@ -487,6 +488,13 @@ public class GameLogic {
         table.remove(collidedFigure);
     }
 
+    public void handlePawnPromotion(String figure, String pawn, int[] pos) {
+        addNewFigureToTable(figure, pos);
+        removeFigure(pawn);
+        settings.setPawnPromoted(false);
+        settings.setPromotedPawn(null);
+    }
+
     private boolean handleCollision(String collidedPiece, String figure) {
         if (collidedPiece == null || figure == null) {
             // no collision -> no checking
@@ -545,6 +553,8 @@ public class GameLogic {
             }
         }
 
+        // check if pawn promotion
+
 
     }
 
@@ -592,6 +602,23 @@ public class GameLogic {
         System.out.println((end - start) / 1000000);
         return moves;
     }
+
+    public void addNewFigureToTable(String figure, int[] pos) {
+        // r -> retrospectively created figure
+        String identifier = "r";
+        int num = 0;
+        for (String key : settings.getFigurePositions().keySet()) {
+            if (key.startsWith(figure.substring(1, 3), 1)) {
+                num++;
+            }
+        }
+        if (num == 0) {
+            num = Integer.parseInt("");
+        }
+        settings.getFigurePositions().put(figure.substring(0, 3) + identifier + num, pos);
+        figureClass.addFigure(figure.substring(0, 3) + identifier + num, figureClass.createFigure(figure));
+    }
+
 }
 
 

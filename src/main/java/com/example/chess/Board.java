@@ -10,12 +10,14 @@ public class Board extends JPanel {
     String currFigure;
     Settings settings;
     Figures figures;
+    GameLogic gameLogic;
     Color darkColor, lightColor, possibleMoveColor;
-    Board(Figures figures, Settings settings) {
+    Board(Figures figures, Settings settings, GameLogic gameLogic) {
         this.figures = figures;
         this.settings = settings;
         this.darkColor = settings.getDarkColor();
         this.lightColor = settings.getLightColor();
+        this.gameLogic = gameLogic;
         this.possibleMoveColor = settings.getPossibleMoveColor();
     }
 
@@ -88,6 +90,25 @@ public class Board extends JPanel {
         }
         if (getCurrFigure() != null) {
             g.drawImage(figures.getFigures().get(getCurrFigure()), figurePositions.get(getCurrFigure())[1]*cellSize+settings.getOffsetX() + (settings.getCellSize() / 10), figurePositions.get(getCurrFigure())[0]*cellSize+settings.getOffsetY() + (settings.getCellSize() / 10), settings.getCellSize() - (settings.getCellSize() / 5), settings.getCellSize() - (settings.getCellSize() / 5), null);
+        }
+        if (settings.isPawnPromoted()) {
+            if (!settings.getQueen().isVisible()) {
+                settings.getQueen().setVisible(true);
+                settings.getBishop().setVisible(true);
+                settings.getKnight().setVisible(true);
+                settings.getRook().setVisible(true);
+            }
+
+            if (settings.getPromotedPawn() != null) {
+                gameLogic.handlePawnPromotion(settings.getPromotedPawn(), settings.getLastMovedFigure(), settings.getLastMovedFigurePos());
+            }
+        } else {
+            if (settings.getQueen().isVisible()) {
+                settings.getQueen().setVisible(false);
+                settings.getBishop().setVisible(false);
+                settings.getKnight().setVisible(false);
+                settings.getRook().setVisible(false);
+            }
         }
         revalidate();
         repaint();

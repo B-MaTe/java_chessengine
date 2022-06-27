@@ -2,6 +2,7 @@ package com.example.chess;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,9 @@ public class Settings {
     private String lastMovedFigure = null;
     private int[] lastMovedFigurePos = null;
     private int[] lastMovedFigurePrevPos = null;
+    private boolean pawnPromoted = false;
+    private String promotedPawn = null;
+    JButton queen, knight, bishop, rook;
     Settings() {
         this.kingStartingPos = new HashMap<>();
         this.topColor = new HashMap<>();
@@ -78,6 +82,66 @@ public class Settings {
         checkmateMessage.put('b', "Checkmate, White won the game!");
         kingStartingPos.put("wki", figurePositions.get("wki"));
         kingStartingPos.put("bki", figurePositions.get("bki"));
+
+        int fontSize = getCellSize() / 8;
+        queen = new JButton("Queen");
+        queen.setBounds(getOffsetX() + getCellSize() * 9, fontSize, fontSize * 3, fontSize);
+        queen.addActionListener(e -> setPromotedPawn(turnSwapper(getTurn()) + "qu"));
+        queen.setVisible(false);
+
+        knight = new JButton("Knight");
+        knight.setBounds(getOffsetX() + getCellSize() * 9, fontSize * 2, fontSize * 3, fontSize);
+        knight.addActionListener(e -> setPromotedPawn(turnSwapper(getTurn()) + "kn"));
+        knight.setVisible(false);
+
+        bishop = new JButton("Bishop");
+        bishop.setBounds(getOffsetX() + getCellSize() * 9, fontSize * 3, fontSize * 3, fontSize);
+        bishop.addActionListener(e -> setPromotedPawn(turnSwapper(getTurn()) + "bi"));
+        bishop.setVisible(false);
+
+        rook = new JButton("Rook");
+        rook.setBounds(getOffsetX() + getCellSize() * 9, fontSize * 4, fontSize * 3, fontSize);
+        rook.addActionListener(e -> setPromotedPawn(turnSwapper(getTurn()) + "ro"));
+        rook.setVisible(false);
+    }
+
+    public char turnSwapper(char color) {
+        if (color == 'w') {
+            return 'b';
+        }
+        return 'w';
+    }
+
+    public String getPromotedPawn() {
+        return promotedPawn;
+    }
+
+    public void setPromotedPawn(String promotedPawn) {
+        this.promotedPawn = promotedPawn;
+    }
+
+    public JButton getQueen() {
+        return queen;
+    }
+
+    public JButton getKnight() {
+        return knight;
+    }
+
+    public JButton getBishop() {
+        return bishop;
+    }
+
+    public JButton getRook() {
+        return rook;
+    }
+
+    public boolean isPawnPromoted() {
+        return pawnPromoted;
+    }
+
+    public void setPawnPromoted(boolean pawnPromoted) {
+        this.pawnPromoted = pawnPromoted;
     }
 
     public int[] getLastMovedFigurePrevPos() {
@@ -263,4 +327,5 @@ public class Settings {
     public int[] kingStartingPos(String king) {
         return kingStartingPos.get(king);
     }
+
 }

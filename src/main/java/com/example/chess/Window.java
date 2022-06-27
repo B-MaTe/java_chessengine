@@ -16,9 +16,9 @@ public class Window extends JFrame implements ActionListener {
     Window() throws IOException {
         this.figures = new Figures();
         this.settings = new Settings();
-        this.board = new Board(figures, settings);
         this.frame = new JFrame(settings.getTitle());
         this.gameLogic = new GameLogic(settings, figures);
+        this.board = new Board(figures, settings, gameLogic);
         this.actions = new Actions(board, figures, settings, gameLogic);
         frame.add(board);
         frame.setContentPane(board);
@@ -31,10 +31,20 @@ public class Window extends JFrame implements ActionListener {
         frame.setVisible(settings.getVisible());
         frame.setResizable(settings.getResizable());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+        //rook.setVisible(false);
+        frame.add(settings.getQueen());
+        frame.add(settings.getBishop());
+        frame.add(settings.getRook());
+        frame.add(settings.getKnight());
     }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
     }
+
+
 }

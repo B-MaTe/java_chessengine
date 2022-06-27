@@ -25,88 +25,117 @@ public class Actions extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (!isLeftClickReleased()) {
-            return;
-        }
-        int unmask = InputEvent.BUTTON1_DOWN_MASK;
-        if ((e.getModifiersEx() & unmask) == unmask) {
-            setLeftClickReleased(false);
-            setNewPos(e);
-            if (getRow() < 0 || getRow() > 7 || getCol() < 0 || getCol() > 7) {
-                setOnBoard(false);
+        if (!settings.isPawnPromoted()) {
+            if (!isLeftClickReleased()) {
                 return;
             }
-            setOnBoard(true);
-            // set the mouse pos to (x, y) coordinates
-            for (Map.Entry<String, int[]> entry : settings.getFigurePositions().entrySet()) {
-                // check if the mouse coordinates (x, y) match any figure on the board
-                if (Arrays.equals(entry.getValue(), new int[]{getRow(), getCol()})) {
-                    if (entry.getKey().charAt(0) == settings.getTurn()) {
-                        updateOldPosToNew();
-                        setCurrPiece(entry.getKey());
-                        try {
-                            // set the possible moves for highlighting, and validation
-                            settings.setPossibleMoves(gameLogic.getCheckedPossibleMoves(new int[]{getRow(), getCol()}, entry.getKey()));
-                        } catch (Exception ex) {
-                            throw new RuntimeException(ex);
+            int unmask = InputEvent.BUTTON1_DOWN_MASK;
+            if ((e.getModifiersEx() & unmask) == unmask) {
+                setLeftClickReleased(false);
+                setNewPos(e);
+                if (getRow() < 0 || getRow() > 7 || getCol() < 0 || getCol() > 7) {
+                    setOnBoard(false);
+                    return;
+                }
+                setOnBoard(true);
+                // set the mouse pos to (x, y) coordinates
+                for (Map.Entry<String, int[]> entry : settings.getFigurePositions().entrySet()) {
+                    // check if the mouse coordinates (x, y) match any figure on the board
+                    if (Arrays.equals(entry.getValue(), new int[]{getRow(), getCol()})) {
+                        if (entry.getKey().charAt(0) == settings.getTurn()) {
+                            updateOldPosToNew();
+                            setCurrPiece(entry.getKey());
+                            try {
+                                // set the possible moves for highlighting, and validation
+                                settings.setPossibleMoves(gameLogic.getCheckedPossibleMoves(new int[]{getRow(), getCol()}, entry.getKey()));
+                            } catch (Exception ex) {
+                                throw new RuntimeException(ex);
+                            }
                         }
                     }
                 }
-            }
-            if (getCurrPiece() == null) {
+                if (getCurrPiece() == null) {
+                    setOnBoard(false);
+                    setValuesToNull();
+                }
+            } else {
                 setOnBoard(false);
-                setValuesToNull();
             }
-        } else {
-            setOnBoard(false);
         }
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-        if (e.getButton() == 1) {
-            setLeftClickReleased(true);
-        }
-        if (isLeftClickReleased()) {
+    public void mouseDragged(MouseEvent e) {
+        if (!settings.isPawnPromoted()) {
             if (isOnBoard()) {
-                try {
-                    // check if user made a legal move
-                    if (getOldRow() != getRow() || getOldCol() != getCol() && getCurrPiece() != null) {
-                        // check if move is valid
-                        if (gameLogic.checkMove(getCurrPiece(), new int[]{getRow(), getCol()}, new int[]{getOldRow(), getOldCol()})) {
-                            // moves++
-                            settings.setMove(settings.getMove() + 1);
-                            // check if move was en passant
-                            checkEnPassant();
-                            // check if move was castle
-                            checkCastle();
-                            // figure moved
-                            settings.setFigureMoved(getCurrPiece());
-                            // check if move caused checkmate
-                            settings.setCheckmate(gameLogic.checkIfCheckmate(getCurrPiece().charAt(0), settings.getFigurePositions()));
-                            // swap turn
-                            if (settings.getTurn() == 'w') {
-                                settings.setTurn('b');
-                            } else {
-                                settings.setTurn('w');
-                            }
-                            // set last moved figure
-                            settings.setLastMovedFigure(getCurrPiece());
-                            settings.setLastMovedFigurePos(new int[]{getRow(), getCol()});
-                            settings.setLastMovedFigurePrevPos(new int[]{getOldRow(), getOldCol()});
-                        // take the move back
+                if (e.getModifiersEx() == InputEvent.BUTTON1_DOWN_MASK) {
+                    if (getCurrPiece() != null) {
+                        setNewPos(e);
+                        // check if on the board
+                        if (getRow() < 0 || getRow() > 7 || getCol() < 0 || getCol() > 7) {
+                            setOldPos();
                         } else {
-                            takeBackMove();
+                            moveFigure(getCurrPiece());
                         }
                     }
-                } catch (Exception ex) {
-                    throw new RuntimeException(ex);
                 }
             }
-            // reassign the values to null
-            setValuesToNull();
+        }
+    }
+
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        if (!settings.isPawnPromoted()) {
+            if (e.getButton() == 1) {
+                setLeftClickReleased(true);
+            }
+            if (isLeftClickReleased()) {
+                if (isOnBoard()) {
+                    try {
+                        // check if user made a legal move
+                        if (getOldRow() != getRow() || getOldCol() != getCol() && getCurrPiece() != null) {
+                            // check if move is valid
+                            if (gameLogic.checkMove(getCurrPiece(), new int[]{getRow(), getCol()}, new int[]{getOldRow(), getOldCol()})) {
+                                // moves++
+                                settings.setMove(settings.getMove() + 1);
+                                // check if move was en passant
+                                checkEnPassant();
+                                // check if move was castle
+                                checkCastle();
+                                // set last moved figure
+                                settings.setLastMovedFigure(getCurrPiece());
+                                settings.setLastMovedFigurePos(new int[]{getRow(), getCol()});
+                                settings.setLastMovedFigurePrevPos(new int[]{getOldRow(), getOldCol()});
+                                // check if move was pawn promotion
+                                checkPawnPromotion();
+                                // figure moved
+                                settings.setFigureMoved(getCurrPiece());
+                                // check if move caused checkmate
+                                settings.setCheckmate(gameLogic.checkIfCheckmate(getCurrPiece().charAt(0), settings.getFigurePositions()));
+                                // swap turn
+                                settings.setTurn(settings.turnSwapper(settings.getTurn()));
+                                // take the move back
+                            } else {
+                                takeBackMove();
+                            }
+                        }
+                    } catch (Exception ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                // reassign the values to null
+                setValuesToNull();
+            }
         }
 
+    }
+
+    private void checkPawnPromotion() {
+        // check for promotion
+        if (getCurrPiece().startsWith("pa", 1) && (getRow() == 7 || getRow() == 0)) {
+            settings.setPawnPromoted(true);
+        }
     }
 
     private void checkEnPassant() {
@@ -141,23 +170,6 @@ public class Actions extends MouseAdapter {
             }
         }
 
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        if (isOnBoard()) {
-            if (e.getModifiersEx() == InputEvent.BUTTON1_DOWN_MASK) {
-                if (getCurrPiece() != null) {
-                    setNewPos(e);
-                    // check if on the board
-                    if (getRow() < 0 || getRow() > 7 || getCol() < 0 || getCol() > 7) {
-                        setOldPos();
-                    } else {
-                        moveFigure(getCurrPiece());
-                    }
-                }
-            }
-        }
     }
 
     private void setValuesToNull() {
