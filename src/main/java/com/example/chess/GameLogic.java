@@ -1,7 +1,6 @@
 package com.example.chess;
 
 
-import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class GameLogic {
@@ -66,7 +65,7 @@ public class GameLogic {
         }
     }
 
-    private HashMap<String, int[]> getCopyOfFigures() {
+    HashMap<String, int[]> getCopyOfFigures() {
         return new HashMap<>(getFigures());
     }
 
@@ -489,10 +488,15 @@ public class GameLogic {
     }
 
     public void handlePawnPromotion(String figure, String pawn, int[] pos) {
-        addNewFigureToTable(figure, pos);
-        removeFigure(pawn);
-        settings.setPawnPromoted(false);
-        settings.setPromotedPawn(null);
+        if (removeFigure(pawn)) {
+            addNewFigureToTable(figure, pos);
+            settings.setPawnPromoted(false);
+            settings.setPromotedPawn(null);
+            settings.setJustPromoted(true);
+        } else {
+            throw new Error("Error occurred!");
+        }
+
     }
 
     private boolean handleCollision(String collidedPiece, String figure) {
@@ -529,7 +533,7 @@ public class GameLogic {
 
     private void moveTemporary(String figure, int[] move, HashMap<String, int[]> table) {
         // check castle
-        if (figure.substring(1, 3).equals("ki")) {
+        if (figure.startsWith("ki", 1)) {
             if (Math.abs(move[1] - table.get(figure)[1]) > 1) {
                 // handle castling
                 int row = move[0];
@@ -583,7 +587,6 @@ public class GameLogic {
                 if (getCheckedPossibleMoves(entry.getValue(), entry.getKey()).size() > 0) {
                     return false;
                 }
-
             }
         }
         return true;
@@ -598,6 +601,7 @@ public class GameLogic {
                 moves.put(entry.getKey(), getCheckedPossibleMoves(entry.getValue(), entry.getKey()));
             }
         }
+
         long end = System.nanoTime();
         System.out.println((end - start) / 1000000);
         return moves;
@@ -608,17 +612,18 @@ public class GameLogic {
         String identifier = "r";
         int num = 0;
         for (String key : settings.getFigurePositions().keySet()) {
-            if (key.startsWith(figure.substring(1, 3), 1)) {
+            if (key.startsWith(figure)) {
                 num++;
             }
         }
         if (num == 0) {
             num = Integer.parseInt("");
         }
-        settings.getFigurePositions().put(figure.substring(0, 3) + identifier + num, pos);
-        figureClass.addFigure(figure.substring(0, 3) + identifier + num, figureClass.createFigure(figure));
-    }
 
+        figureClass.addFigure(figure + identifier + num, figureClass.createFigure(figure));
+        settings.getFigurePositions().put(figure + identifier + num, pos);
+
+    }
 }
 
 

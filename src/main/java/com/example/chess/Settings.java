@@ -19,7 +19,7 @@ public class Settings {
     private Color darkColor = Color.gray;
     private Color lightColor = Color.WHITE;
     private Color possibleMoveColor = Color.cyan;
-    private final HashMap<String, int[]> figurePositions;
+    private HashMap<String, int[]> figurePositions;
     private int move = 0;
     private final HashMap<String, Boolean> figureMoved;
     private List<int[]> possibleMoves = null;
@@ -35,6 +35,7 @@ public class Settings {
     private boolean pawnPromoted = false;
     private String promotedPawn = null;
     JButton queen, knight, bishop, rook;
+    private boolean justPromoted = false;
     Settings() {
         this.kingStartingPos = new HashMap<>();
         this.topColor = new HashMap<>();
@@ -103,6 +104,14 @@ public class Settings {
         rook.setBounds(getOffsetX() + getCellSize() * 9, fontSize * 4, fontSize * 3, fontSize);
         rook.addActionListener(e -> setPromotedPawn(turnSwapper(getTurn()) + "ro"));
         rook.setVisible(false);
+    }
+
+    public boolean isJustPromoted() {
+        return justPromoted;
+    }
+
+    public void setJustPromoted(boolean justPromoted) {
+        this.justPromoted = justPromoted;
     }
 
     public char turnSwapper(char color) {

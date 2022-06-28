@@ -4,6 +4,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.InputEvent;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Actions extends MouseAdapter {
@@ -25,6 +26,14 @@ public class Actions extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if (settings.isJustPromoted()) {
+            try {
+                checkCheckmate(settings.getFigurePositions());
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+            settings.setJustPromoted(false);
+        }
         if (!settings.isPawnPromoted()) {
             if (!isLeftClickReleased()) {
                 return;
@@ -112,7 +121,7 @@ public class Actions extends MouseAdapter {
                                 // figure moved
                                 settings.setFigureMoved(getCurrPiece());
                                 // check if move caused checkmate
-                                settings.setCheckmate(gameLogic.checkIfCheckmate(getCurrPiece().charAt(0), settings.getFigurePositions()));
+                               checkCheckmate(settings.getFigurePositions());
                                 // swap turn
                                 settings.setTurn(settings.turnSwapper(settings.getTurn()));
                                 // take the move back
@@ -128,7 +137,10 @@ public class Actions extends MouseAdapter {
                 setValuesToNull();
             }
         }
+    }
 
+    private void checkCheckmate(HashMap<String, int[]> table) throws Exception {
+        settings.setCheckmate(gameLogic.checkIfCheckmate(settings.turnSwapper(settings.getTurn()), table));
     }
 
     private void checkPawnPromotion() {

@@ -100,7 +100,11 @@ public class Board extends JPanel {
             }
 
             if (settings.getPromotedPawn() != null) {
-                gameLogic.handlePawnPromotion(settings.getPromotedPawn(), settings.getLastMovedFigure(), settings.getLastMovedFigurePos());
+                try {
+                    gameLogic.handlePawnPromotion(settings.getPromotedPawn(), settings.getLastMovedFigure(), settings.getLastMovedFigurePos());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
         } else {
             if (settings.getQueen().isVisible()) {
