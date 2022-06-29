@@ -4,8 +4,10 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Settings {
     private int WIDTH = 1980;
@@ -34,9 +36,12 @@ public class Settings {
     private int[] lastMovedFigurePrevPos = null;
     private boolean pawnPromoted = false;
     private String promotedPawn = null;
-    JButton queen, knight, bishop, rook;
+    JButton queen, knight, bishop, rook, restart;
     private boolean justPromoted = false;
-    Settings() {
+    private final HashMap<String, int[]> startingPos;
+    Figures figures;
+    Settings(Figures figures) {
+        this.figures = figures;
         this.kingStartingPos = new HashMap<>();
         this.topColor = new HashMap<>();
         topColor.put('w', -1);
@@ -78,6 +83,7 @@ public class Settings {
         for (String key : figurePositions.keySet()) {
             figureMoved.put(key, false);
         }
+        startingPos = new HashMap<>(figurePositions);
         this.checkmateMessage = new HashMap<>(2);
         checkmateMessage.put('w', "Checkmate, Black won the game!");
         checkmateMessage.put('b', "Checkmate, White won the game!");
@@ -104,6 +110,20 @@ public class Settings {
         rook.setBounds(getOffsetX() + getCellSize() * 9, fontSize * 4, fontSize * 3, fontSize);
         rook.addActionListener(e -> setPromotedPawn(turnSwapper(getTurn()) + "ro"));
         rook.setVisible(false);
+
+
+        // Restart button
+        restart = new JButton("Restart Game");
+        restart.setBounds(getOffsetX() + getCellSize() * 9, fontSize, fontSize * 5, fontSize);
+        restart.addActionListener(e -> {
+            try {
+                restartGame();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        restart.setVisible(false);
+
     }
 
     public boolean isJustPromoted() {
@@ -127,6 +147,10 @@ public class Settings {
 
     public void setPromotedPawn(String promotedPawn) {
         this.promotedPawn = promotedPawn;
+    }
+
+    public JButton getRestart() {
+        return restart;
     }
 
     public JButton getQueen() {
@@ -241,6 +265,10 @@ public class Settings {
         this.possibleMoveColor = possibleMoveColor;
     }
 
+    public void setFigurePositions(HashMap<String, int[]> figurePositions) {
+        this.figurePositions = figurePositions;
+    }
+
     public HashMap<String, int[]> getFigurePositions() {
         return figurePositions;
     }
@@ -335,6 +363,34 @@ public class Settings {
 
     public int[] kingStartingPos(String king) {
         return kingStartingPos.get(king);
+    }
+
+    private void setStartingPos() {
+        setFigurePositions(new HashMap<>(getStartingPos()));
+    }
+
+    private void setStartingFigures() throws IOException {
+        figures.initFigures();
+    }
+
+    public HashMap<String, int[]> getStartingPos() {
+        return startingPos;
+    }
+
+
+    public void restartGame() throws IOException {
+        // set every figure to not moved
+        for (String val : getFigureMoved().keySet()) {
+            getFigureMoved().put(val, false);
+        }
+        // set starting position
+        setStartingPos();
+        // set starting figures
+        setStartingFigures();
+        setTurn('w');
+        setCheckmate(false);
+        setMove(1);
+        getRestart().setVisible(false);
     }
 
 }

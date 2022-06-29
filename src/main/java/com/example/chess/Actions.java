@@ -28,7 +28,7 @@ public class Actions extends MouseAdapter {
     public void mousePressed(MouseEvent e) {
         if (settings.isJustPromoted()) {
             try {
-                checkCheckmate(settings.getFigurePositions());
+                checkCheckmate(settings.getFigurePositions(), settings.turnSwapper(settings.getTurn()));
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -121,7 +121,7 @@ public class Actions extends MouseAdapter {
                                 // figure moved
                                 settings.setFigureMoved(getCurrPiece());
                                 // check if move caused checkmate
-                               checkCheckmate(settings.getFigurePositions());
+                               checkCheckmate(settings.getFigurePositions(), getCurrPiece().charAt(0));
                                 // swap turn
                                 settings.setTurn(settings.turnSwapper(settings.getTurn()));
                                 // take the move back
@@ -139,8 +139,8 @@ public class Actions extends MouseAdapter {
         }
     }
 
-    private void checkCheckmate(HashMap<String, int[]> table) throws Exception {
-        settings.setCheckmate(gameLogic.checkIfCheckmate(settings.turnSwapper(settings.getTurn()), table));
+    private void checkCheckmate(HashMap<String, int[]> table, char turn) throws Exception {
+        settings.setCheckmate(gameLogic.checkIfCheckmate(turn, table));
     }
 
     private void checkPawnPromotion() {

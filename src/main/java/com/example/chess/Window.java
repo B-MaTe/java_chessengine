@@ -15,7 +15,7 @@ public class Window extends JFrame implements ActionListener {
 
     Window() throws IOException {
         this.figures = new Figures();
-        this.settings = new Settings();
+        this.settings = new Settings(figures);
         this.frame = new JFrame(settings.getTitle());
         this.gameLogic = new GameLogic(settings, figures);
         this.board = new Board(figures, settings, gameLogic);
@@ -38,6 +38,7 @@ public class Window extends JFrame implements ActionListener {
         frame.add(settings.getBishop());
         frame.add(settings.getRook());
         frame.add(settings.getKnight());
+        frame.add(settings.getRestart());
     }
 
 

@@ -33,6 +33,7 @@ public class Board extends JPanel {
 
         // draw if checkmate
         if (settings.isCheckmate()) {
+            settings.getRestart().setVisible(true);
             Font checkmateFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 4);
             g.setFont(checkmateFont);
             g.setColor(Color.red);
