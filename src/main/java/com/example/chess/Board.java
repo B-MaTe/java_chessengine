@@ -12,6 +12,7 @@ public class Board extends JPanel {
     Figures figures;
     GameLogic gameLogic;
     Color darkColor, lightColor, possibleMoveColor;
+    Font turnFont, pointFont, checkmateFont;
     Board(Figures figures, Settings settings, GameLogic gameLogic) {
         this.figures = figures;
         this.settings = settings;
@@ -19,23 +20,28 @@ public class Board extends JPanel {
         this.lightColor = settings.getLightColor();
         this.gameLogic = gameLogic;
         this.possibleMoveColor = settings.getPossibleMoveColor();
+        turnFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 4);
+        pointFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 4);
+        checkmateFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 4);
     }
 
     public void paint(Graphics g) {
         super.paint(g);
 
-        //draw turn
+        //draw turn and points
         if (!settings.isCheckmate()) {
-            Font turnFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 4);
-            g.setFont(turnFont);
+            g.setFont(getTurnFont());
             g.drawChars(new char[]{Character.toUpperCase(settings.getTurn())}, 0, 1, settings.getOffsetX() / 2, settings.getWIDTH() / 4);
+            g.setFont(getPointFont());
+            g.drawString("%.2f".formatted(settings.getPoints()), settings.getOffsetX() + (settings.getCellSize() * 11), settings.getWIDTH() / 4);
         }
+
+
 
         // draw if checkmate
         if (settings.isCheckmate()) {
             settings.getRestart().setVisible(true);
-            Font checkmateFont = new Font("Serif", Font.BOLD, settings.getCellSize() / 4);
-            g.setFont(checkmateFont);
+            g.setFont(getCheckmateFont());
             g.setColor(Color.red);
             g.drawString(settings.getCheckmateMessage().get(settings.getTurn()), settings.getOffsetX() + settings.getCellSize() * 9, settings.getWIDTH() / 4);
         }
@@ -78,16 +84,17 @@ public class Board extends JPanel {
                 g.fillOval(cellSize*move[1]+settings.getOffsetX() + (cellSize / 10), cellSize*move[0]+settings.getOffsetY() + (cellSize / 10), cellSize - (cellSize / 5), cellSize - (cellSize / 5));
             }
         }
-
-
         figurePositions = settings.getFigurePositions();
         for (String key : figures.getFigures().keySet()) {
-            if (getCurrFigure() != null) {
-                if (key.equals(getCurrFigure())) {
-                    continue;
+            if (key != null && figurePositions.get(key) != null) {
+                if (getCurrFigure() != null) {
+                    if (key.equals(getCurrFigure())) {
+                        continue;
+                    }
                 }
+                g.drawImage(figures.getFigures().get(key), figurePositions.get(key)[1]*cellSize+settings.getOffsetX() + (settings.getCellSize() / 10), figurePositions.get(key)[0]*cellSize+settings.getOffsetY() + (settings.getCellSize() / 10), settings.getCellSize() - (settings.getCellSize() / 5), settings.getCellSize() - (settings.getCellSize() / 5), null);
+
             }
-            g.drawImage(figures.getFigures().get(key), figurePositions.get(key)[1]*cellSize+settings.getOffsetX() + (settings.getCellSize() / 10), figurePositions.get(key)[0]*cellSize+settings.getOffsetY() + (settings.getCellSize() / 10), settings.getCellSize() - (settings.getCellSize() / 5), settings.getCellSize() - (settings.getCellSize() / 5), null);
         }
         if (getCurrFigure() != null) {
             g.drawImage(figures.getFigures().get(getCurrFigure()), figurePositions.get(getCurrFigure())[1]*cellSize+settings.getOffsetX() + (settings.getCellSize() / 10), figurePositions.get(getCurrFigure())[0]*cellSize+settings.getOffsetY() + (settings.getCellSize() / 10), settings.getCellSize() - (settings.getCellSize() / 5), settings.getCellSize() - (settings.getCellSize() / 5), null);
@@ -126,5 +133,17 @@ public class Board extends JPanel {
 
     public void setCurrFigure(String currFigure) {
         this.currFigure = currFigure;
+    }
+
+    public Font getTurnFont() {
+        return turnFont;
+    }
+
+    public Font getPointFont() {
+        return pointFont;
+    }
+
+    public Font getCheckmateFont() {
+        return checkmateFont;
     }
 }

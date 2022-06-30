@@ -27,6 +27,8 @@ public class Settings {
     private List<int[]> possibleMoves = null;
     private char turn = 'w';
     // 1 -> black is top, -1 -> white is top
+    private char topColorChar = 'b';
+    private final char computerColor = 'b';
     private final HashMap<Character, Integer> topColor;
     private boolean checkmate = false;
     private final HashMap<Character, String> checkmateMessage;
@@ -39,6 +41,9 @@ public class Settings {
     JButton queen, knight, bishop, rook, restart;
     private boolean justPromoted = false;
     private final HashMap<String, int[]> startingPos;
+    private String temporaryPromotedFigure = null;
+    private double points = 0;
+    private int positionsChecked = 0;
     Figures figures;
     Settings(Figures figures) {
         this.figures = figures;
@@ -124,6 +129,46 @@ public class Settings {
         });
         restart.setVisible(false);
 
+    }
+
+    public int getPositionsChecked() {
+        return positionsChecked;
+    }
+
+    public void increasePositionsChecked() {
+        positionsChecked += 1;
+    }
+
+    public void restartPositionsChecked() {
+        positionsChecked = 0;
+    }
+
+    public char getComputerColor() {
+        return computerColor;
+    }
+
+    public char getTopColorChar() {
+        return topColorChar;
+    }
+
+    public void setTopColorChar(char topColorChar) {
+        this.topColorChar = topColorChar;
+    }
+
+    public double getPoints() {
+        return points;
+    }
+
+    public void setPoints(double points) {
+        this.points = points;
+    }
+
+    public String getTemporaryPromotedFigure() {
+        return temporaryPromotedFigure;
+    }
+
+    public void setTemporaryPromotedFigure(String temporaryPromotedFigure) {
+        this.temporaryPromotedFigure = temporaryPromotedFigure;
     }
 
     public boolean isJustPromoted() {
@@ -391,6 +436,8 @@ public class Settings {
         setCheckmate(false);
         setMove(1);
         getRestart().setVisible(false);
+        setPoints(0.0d);
+        setPossibleMoves(null);
     }
 
 }

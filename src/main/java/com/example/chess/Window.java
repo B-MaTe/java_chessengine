@@ -12,14 +12,18 @@ public class Window extends JFrame implements ActionListener {
     Board board;
     Actions actions;
     GameLogic gameLogic;
+    Computer computer;
+    FigureValues figureValues;
 
     Window() throws IOException {
         this.figures = new Figures();
         this.settings = new Settings(figures);
         this.frame = new JFrame(settings.getTitle());
         this.gameLogic = new GameLogic(settings, figures);
+        this.figureValues = new FigureValues();
+        this.computer = new Computer(settings, gameLogic, figureValues);
         this.board = new Board(figures, settings, gameLogic);
-        this.actions = new Actions(board, figures, settings, gameLogic);
+        this.actions = new Actions(board, figures, settings, gameLogic, computer);
         frame.add(board);
         frame.setContentPane(board);
         frame.addMouseListener(actions);
